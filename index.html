@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Archetypes Assessment</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <meta name="description" content="Archetypes assessment and team dashboard" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">Archetypes</div>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#home" data-tab="home" class="nav-link">Home</a>
+      <a href="#start" data-tab="start" class="nav-link">Start</a>
+      <a href="#results" data-tab="results" class="nav-link">Get Results <span class="badge" id="completedBadge" aria-hidden="true">Completed</span></a>
+      <a href="#team" data-tab="team" class="nav-link">Your Team</a>
+      <a href="#about" data-tab="about" class="nav-link">About Us</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">Menu</button>
+  </header>
+
+  <main>
+    <section id="home" class="tab-section" data-section>
+      <div class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Performance and leadership</p>
+          <h1><span style="color: #ff6b35;">Archetypes</span> that shape how you think and lead</h1>
+          <p class="lead">Built through research with record holding explorers across polar, deep sea, and astronaut teams, then refined in world class sport. This assessment reveals your most natural preferences and how they play out in decision-making, communication, connection and behaviours.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#start">Start now</a>
+            <a class="btn ghost" href="#about">About the work</a>
+          </div>
+          <div class="hero-meta">
+            <div class="meta-card">
+              <div class="meta-title"><strong>EVIDENCE LEAD</strong></div>
+              <div class="meta-copy">Focused on repeatable behaviours, not labels, and developed for teams that value togetherness.</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-title"><strong>RESULTS IN SECONDS</strong></div>
+              <div class="meta-copy">Leaders and teams value meaningful insights without the noise. That's what we've created.</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="ring"></div>
+          <div class="ring inner"></div>
+          <div class="pulse"></div>
+          <div class="archetype-scanner">
+            <div class="archetype-name" style="--index: 0;">ANCHOR</div>
+            <div class="archetype-name" style="--index: 1;">CONNECTOR</div>
+            <div class="archetype-name" style="--index: 2;">NAVIGATOR</div>
+            <div class="archetype-name" style="--index: 3;">GUARDIAN</div>
+            <div class="archetype-name" style="--index: 4;">EXPLORER</div>
+            <div class="archetype-name" style="--index: 5;">ENERGISER</div>
+            <div class="archetype-name" style="--index: 6;">SYNCHRONISER</div>
+            <div class="archetype-name" style="--index: 7;">DECISION-MAKER</div>
+            <div class="archetype-name" style="--index: 8;">INNOVATOR</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="start" class="tab-section" data-section>
+      <div class="section-header">
+        <h2>Archetype Assessment</h2>
+        <p>One question. Two selections.<br>Start by seeing yourself in two of the nine options below. Then select which two archetypes best describe how you prefer to decide, communicate, connect and act under pressure?</p>
+        <div id="examplesSection"></div>
+      </div>
+      <div id="assessment"></div>
+      <div class="lockin" id="lockInWrap" hidden>
+        <button class="btn primary" id="lockInBtn">Lock in</button>
+        <button class="btn ghost" id="resetBtn">Reset preferences</button>
+        <p class="hint">You can change selections before locking in.</p>
+      </div>
+      <div id="structuralFlow"></div>
+    </section>
+
+    <section id="results" class="tab-section" data-section>
+      <div class="section-header">
+        <h2>Get your results</h2>
+        <p>See your archetype pair and the behaviours that matter most in sport and leadership.</p>
+      </div>
+      <div id="resultsContent"></div>
+    </section>
+
+    <section id="team" class="tab-section" data-section>
+      <div class="section-header">
+        <h2>Your team dashboard</h2>
+        <p>Upload a team sheet to see shared strengths and communication guidance.</p>
+      </div>
+      <div id="teamGate"></div>
+      <div id="teamContent" hidden></div>
+    </section>
+
+    <section id="about" class="tab-section" data-section>
+      <div class="section-header">
+        <h2>About us</h2>
+        <p>Research grounded, applied in elite performance, built for human clarity.</p>
+      </div>
+      <div class="about-layout">
+        <div class="about-panel about-panel-wide">
+          <div class="about-header">
+            <div style="display: flex; justify-content: center;">
+              <img class="avatar" src="Headshop.png" alt="Jonathan Rhodes headshot" />
+            </div>
+            <h3>ABOUT</h3>
+            <p class="about-lede about-highlight">Research-led performance insight, translated into practical clarity under pressure.</p>
+          </div>
+          <div class="about-body">
+            <p>Jonathan began in sport, where pressure is visible and mistakes are immediate. That foundation expanded into research and applied work across exploration, military, healthcare, the Olympics and Commonwealth Games, and leadership environments where performance is measured in real time.</p>
+            <p>In every performance environment, one pattern repeats itself. Breakdowns rarely begin with strategy. They begin with misunderstanding. And misunderstanding is almost always the by-product of unclear communication, which in turn grows from weak understanding and poor connection.</p>
+            <p>Jonathan developed the Archetype Assessment by distilling the strongest elements from dozens of established personality frameworks into one decisive choice with detailed, practical feedback. It is offered freely because self awareness should not be restricted to those with access or budget. Clarity is the first step. Deliberate practice is the second.</p>
+            <p>Currently, Jonathan supports international exploration initiatives, elite sport programmes, healthcare leaders, and high performance organisations, helping teams translate insight into disciplined action under pressure.</p>
+            <div class="about-pillars">
+              <span>JONATHAN'S CURRENT ARCHETYPES:</span>
+              <span data-tooltip="Innovator: bold idea engine · Limit: can outrun consensus.">Innovator</span>
+              <span data-tooltip="Anchor: steady under pressure · Limit: can hold the line too long.">Anchor</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-panel">
+          <div class="about-header">
+            <h3>CONTACT</h3>
+            <p class="about-lede about-highlight">Engagements are selective and by invitation only.</p>
+          </div>
+          <div class="about-body">
+            <p>Due to current programme commitments across performance and research environments, we are not accepting new collaborations, keynote engagements, or team integrations at this time. Opportunities are reviewed selectively and by invitation.</p>
+            <p>For insights, updates, and applied performance thinking, connect on <a href="https://www.linkedin.com/in/jon-rhodes-phd/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+            <h4 class="about-subheading">OUR PHILOSOPHY IS SIMPLE:</h4>
+            <div class="contact-pillars">
+              <span>Self-awareness</span>
+              <span>Collaboration</span>
+              <span>Communication</span>
+              <span>Imagination</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-panel about-panel-wide">
+          <div class="about-header">
+            <h3>ABOUT THE WORK</h3>
+            <p class="about-lede about-highlight">A focused archetype lens grounded in established research traditions.</p>
+          </div>
+          <div class="about-body">
+            <p>This Leadership Archetype assessment is informed by established traditions in personality and role-based psychology. It draws conceptually from the Enneagram framework (Daniels &amp; Price, 2009; Palmer, 1991), and Jungian psychological type theory (Jung, 1921/1971). Its applied development connects to the Myers–Briggs Type Indicator (Briggs Myers et al., 1998), Belbin’s team role theory (Belbin, 2010; Aritzeta et al., 2007), DISC behavioural profiling originating in Marston’s work on emotional expression (Marston, 1928), motivational frameworks underpinning the PRINT assessment and Free Trait Theory (Little, 2008, 2014), and strengths-based developmental models such as the Spotlight Assessment (Lencioni, 2016). Broader archetype theory from analytical psychology further informs the conceptual framing (Jung, 1968; Pearson, 1991).</p>
+            <p>Each of these systems provides detailed and often psychometrically developed insight into personality, behavioural tendencies, motivation, and team contribution. I have worked with and personally experienced these assessments extensively and recognise both their depth and developmental value. Users who wish to undertake a comprehensive personality or behavioural instrument are encouraged to do so.</p>
+            <p>In contrast, this Archetype model represents a proprietary integration of these traditions through my own research and applied leadership work. It offers a streamlined developmental snapshot of your dominant leadership preference at this moment in time. It reflects how you are currently showing up rather than who you are permanently. Unlike trait-based models that imply relative stability, this framework assumes adaptive capacity. Preferences can evolve through deliberate practice, self-awareness, and contextual demand. Leadership is not fixed. It is cultivated.</p>
+            <p>This diagnostic is also grounded in contemporary extreme team research, particularly the structural configuration framework identified in a systematic review of 195 studies on high risk teams (Feitosa et al., 2025). That research demonstrated that extreme teams can be understood along three core dimensions:</p>
+            <p>Authority differentiation - how decision power is distributed across the team<br>Skill differentiation - how specialised roles and expertise are structured<br>Temporal stability - how stable membership and relational patterns remain over time</p>
+            <p>The integration of personality preference and structural configuration provides a dual lens. One clarifies how you tend to lead. The other clarifies how teams organise under sustained pressure. Together they move beyond labels and into operational understanding.</p>
+          </div>
+        </div>
+
+        <div class="about-panel about-panel-wide">
+          <div class="about-header">
+            <h3>RESEARCH</h3>
+          </div>
+          <div class="about-body">
+            <ul class="research-list">
+              <li>Rhodes, J., Warne, M., &amp; Smith, A. D. (2026). The Explorer Mindset: An Interpretative Phenomenological Analysis of the Psychological Characteristics of World-Class Modern Explorers. Journal of Human Performance in Extreme Environments.</li>
+              <li>Andrade, J., Hartgen-Walker, S., Morgan, C., Aytekin, I., Sekoni, K., Sengul, K., &amp; Rhodes, J. (2026). Self-guided functional imagery training to reduce anxiety. Behaviour Research and Therapy, 104962.</li>
+              <li>Rhodes, J., &amp; Leach, A. (2026). Evaluating Functional Imagery Training and Internal Visual Imagery on Tennis Serve Performance. Journal of Sport and Exercise Psychology.</li>
+              <li>Rhodes, J., Nedza, K., May, J., &amp; Clements, L. (2024). Imagery training for athletes with low imagery abilities. Journal of Applied Sport Psychology, 36(5), 831-844.</li>
+              <li>Rhodes, J., &amp; Nedza, K. (2023). Coaching Imagery to Athletes with Aphantasia.</li>
+              <li>Rhodes, J., Blakeley-Glover, J., Miller, A., Taylor, A., &amp; Rochmankowski, I. (2023). Inner development goals and the meaning, awareness and purpose (MAP) model for climate coaching. Journal of Mental Health and Climate Change.</li>
+              <li>Rhodes, J., &amp; May, J. (2022). Applied imagery for motivation: a person-centred model. International Journal of Sport and Exercise Psychology, 20(6), 1556-1575.</li>
+              <li>Rhodes, J., Nedza, K., May, J., Jenkins, T., &amp; Stone, T. (2021). From couch to ultra marathon: using functional imagery training to enhance motivation. Journal of Imagery Research in Sport and Physical Activity, 16(1), 20210011.</li>
+              <li>Rhodes, J. (2020). Enhancing grit in elite athletes through functional imagery training.</li>
+              <li>Rhodes, J., May, J., &amp; Booth, A. (2020). Penalty success in professional soccer: A randomised comparison between imagery methodologies. Journal of Imagery Research in Sport and Physical Activity, 15(1), 20200014.</li>
+              <li>Rhodes, J., May, J., Andrade, J., &amp; Kavanagh, D. (2018). Enhancing grit through functional imagery training in professional soccer. The Sport Psychologist, 32(3), 220-225.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Archetypes Assessment. Built for performance, grounded in evidence.<br>Dr. Jonathan Rhodes ©</p>
+  </footer>
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" onerror="this.onerror=null;this.src='assets/vendor/plotly.min.js'"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
