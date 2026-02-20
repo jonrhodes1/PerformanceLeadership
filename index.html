@@ -4,6 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Archetypes Assessment</title>
+  <script>
+    (function ensureGitHubPagesTrailingSlash() {
+      const path = window.location.pathname;
+      if (/\/PerformanceLeadership$/.test(path)) {
+        window.location.replace(`${path}/${window.location.search}${window.location.hash}`);
+      }
+    }());
+  </script>
   <link rel="stylesheet" href="assets/styles.css" />
   <meta name="description" content="Archetypes assessment and team dashboard" />
 </head>
@@ -182,7 +190,7 @@
   </footer>
 
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" onerror="this.onerror=null;this.src='assets/vendor/plotly.min.js'"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" onerror="this.onerror=null;this.src='assets/vendor/xlsx.full.min.js'"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>
