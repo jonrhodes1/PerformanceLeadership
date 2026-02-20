@@ -11,6 +11,7 @@ const state = {
   recency: {},
   templates: {},
   teamRows: [],
+  teamAccessLevel: 'basic',
   teamMapOptions: {
     filter: 'All',
     showNames: true,
@@ -39,6 +40,7 @@ const elements = {
 const STORAGE_KEY = 'archetypeResults';
 const STRUCTURAL_KEY = 'archetypeStructuralProfile';
 const TEAM_UNLOCK_KEY = 'unlockedTeam';
+const TEAM_ACCESS_KEY = 'teamAccessLevel';
 
 const preferenceStem = 'Select your most natural preference, then your second preference.';
 
@@ -222,6 +224,11 @@ const structuralIdentities = [
   'Guardmaster', 'Watchstander', 'Signalist', 'Helm', 'Guide',
 ];
 
+const structuralIdentityMap = structuralIdentities.reduce((acc, word, index) => {
+  acc[word.toLowerCase()] = index;
+  return acc;
+}, {});
+
 const structuralDescriptors = {
   authority: ['Informal', 'Shared', 'Conditional', 'Role-Based', 'Command'],
   skill: ['Generalist', 'Flexible', 'Layered', 'Specialist', 'Elite Specialist'],
@@ -237,6 +244,16 @@ const buildStructuralIdentity = (scores) => {
     index,
     word: structuralIdentities[index] || 'Scout',
   };
+};
+
+const structuralScoresFromIdentity = (word) => {
+  if (!word) return null;
+  const index = structuralIdentityMap[word.toLowerCase()];
+  if (index === undefined) return null;
+  const authority = Math.floor(index / 25) + 1;
+  const skill = Math.floor((index % 25) / 5) + 1;
+  const stability = (index % 5) + 1;
+  return { authority, skill, stability, index };
 };
 
 const buildStructuralStrengthVulnerability = (scores) => {
@@ -1328,14 +1345,19 @@ const downloadTeamPDF = (rows) => {
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((person) => {
       const pref = getPrefs(person.primary) || {};
+      const identity = person.identity ? escapeHtml(person.identity) : 'Not set';
+      const scores = person.structuralScores
+        ? `${person.structuralScores.authority}/${person.structuralScores.skill}/${person.structuralScores.stability}`
+        : 'Not set';
       return `
         <tr>
           <td>${escapeHtml(person.name)}</td>
           <td>${escapeHtml(person.role || 'Player')}</td>
           <td>${escapeHtml(person.primary)}</td>
           <td>${escapeHtml(person.secondary || 'Not set')}</td>
-          <td>${escapeHtml(pref.goalComms || 'Not set')}</td>
-          <td>${escapeHtml(pref.feedbackStyle || 'Not set')}</td>
+          ${state.teamAccessLevel === 'full'
+            ? `<td>${identity}</td><td>${scores}</td>`
+            : `<td>${escapeHtml(pref.goalComms || 'Not set')}</td><td>${escapeHtml(pref.feedbackStyle || 'Not set')}</td>`}
         </tr>
       `;
     }).join('');
@@ -1383,8 +1405,9 @@ const downloadTeamPDF = (rows) => {
               <th>Role</th>
               <th>Primary</th>
               <th>Secondary</th>
-              <th>Goal Communication</th>
-              <th>Feedback Style</th>
+              ${state.teamAccessLevel === 'full'
+                ? '<th>Identity</th><th>Structural Scores</th>'
+                : '<th>Goal Communication</th><th>Feedback Style</th>'}
             </tr>
           </thead>
           <tbody>
@@ -1392,6 +1415,35 @@ const downloadTeamPDF = (rows) => {
           </tbody>
         </table>
       </div>
+      ${state.teamAccessLevel === 'full' ? `
+      <div class="panel">
+        <h2>Structural Dimension Summary</h2>
+        <p>${(() => {
+          const scored = rows.filter((row) => row.structuralScores);
+          if (!scored.length) return 'No structural data available.';
+          const totals = scored.reduce((acc, row) => {
+            acc.authority += row.structuralScores.authority;
+            acc.skill += row.structuralScores.skill;
+            acc.stability += row.structuralScores.stability;
+            return acc;
+          }, { authority: 0, skill: 0, stability: 0 });
+          const avg = {
+            authority: Math.round((totals.authority / scored.length) * 10) / 10,
+            skill: Math.round((totals.skill / scored.length) * 10) / 10,
+            stability: Math.round((totals.stability / scored.length) * 10) / 10,
+          };
+          const authorityLabel = structuralDescriptors.authority[Math.round(avg.authority) - 1];
+          const skillLabel = structuralDescriptors.skill[Math.round(avg.skill) - 1];
+          const stabilityLabel = structuralDescriptors.stability[Math.round(avg.stability) - 1];
+          const patterns = buildStructuralStrengthVulnerability({
+            authority: Math.round(avg.authority),
+            skill: Math.round(avg.skill),
+            stability: Math.round(avg.stability),
+          });
+          return `Authority averages ${avg.authority}/5 which trends ${authorityLabel.toLowerCase()}. Skill averages ${avg.skill}/5 which trends ${skillLabel.toLowerCase()}. Stability averages ${avg.stability}/5 which trends ${stabilityLabel.toLowerCase()}. Under pressure this supports ${patterns.strength}, but can drift toward ${patterns.vulnerability}.`;
+        })()}</p>
+      </div>
+      ` : ''}
     </body>
     </html>
   `;
@@ -1536,42 +1588,66 @@ const renderArchetypeWheel = (primaryName, secondaryName) => {
 };
 
 const renderTeamGate = () => {
-  const unlocked = sessionStorage.getItem(TEAM_UNLOCK_KEY) === 'true';
-  if (unlocked) {
+  const accessLevel = sessionStorage.getItem(TEAM_ACCESS_KEY);
+  if (accessLevel) {
     elements.teamGate.innerHTML = '';
     elements.teamContent.hidden = false;
-    renderTeamContent();
+    state.teamAccessLevel = accessLevel;
+    renderTeamContent(accessLevel);
     return;
   }
   elements.teamContent.hidden = true;
   elements.teamGate.innerHTML = `
-    <div class="card" style="max-width:420px;">
-      <h3>Team access</h3>
-      <p>Enter the password to unlock the team dashboard.</p>
-      <div style="display:grid; gap:12px;">
-        <input id="teamPassword" type="password" aria-label="Team password" placeholder="Password" />
-        <button class="btn primary" id="teamUnlock">Unlock</button>
-        <p class="hint" id="teamError" aria-live="polite"></p>
+    <div class="team-access-grid">
+      <div class="card">
+        <h3>Team assess (Archetype Only)</h3>
+        <p>Enter the password to unlock archetype only access.</p>
+        <div style="display:grid; gap:12px;">
+          <input id="teamPassword" type="password" aria-label="Team password" placeholder="Password" />
+          <button class="btn primary" id="teamUnlock">Unlock</button>
+          <p class="hint" id="teamError" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Team access (Full)</h3>
+        <p>Enter the password to unlock full structural access.</p>
+        <div style="display:grid; gap:12px;">
+          <input id="teamFullPassword" type="password" aria-label="Team full password" placeholder="Password" />
+          <button class="btn primary" id="teamFullUnlock">Unlock</button>
+          <p class="hint" id="teamFullError" aria-live="polite"></p>
+        </div>
       </div>
     </div>
   `;
   document.getElementById('teamUnlock').addEventListener('click', () => {
     const val = document.getElementById('teamPassword').value;
     if (val === 'Purple') {
-      sessionStorage.setItem(TEAM_UNLOCK_KEY, 'true');
+      sessionStorage.setItem(TEAM_ACCESS_KEY, 'basic');
       renderTeamGate();
     } else {
       document.getElementById('teamError').textContent = 'Incorrect password.';
     }
   });
+  document.getElementById('teamFullUnlock').addEventListener('click', () => {
+    const val = document.getElementById('teamFullPassword').value;
+    if (val === 'Coleman') {
+      sessionStorage.setItem(TEAM_ACCESS_KEY, 'full');
+      renderTeamGate();
+    } else {
+      document.getElementById('teamFullError').textContent = 'Incorrect password.';
+    }
+  });
 };
 
-const renderTeamContent = () => {
+const renderTeamContent = (accessLevel = 'basic') => {
+  state.teamAccessLevel = accessLevel;
   elements.teamContent.innerHTML = `
     <div class="team-upload">
       <div>
         <h3>Upload team file</h3>
-        <p>Use an .xlsx with headers: Name, Primary Archetype, Secondary Archetype.</p>
+        <p>${accessLevel === 'full'
+          ? 'Use an .xlsx with headers: Name, Role, Primary Archetype, Secondary Archetype, Identity. Example: RAW_Archetype_Sheet.xlsx.'
+          : 'Use an .xlsx with headers: Name, Primary Archetype, Secondary Archetype.'}</p>
       </div>
       <input id="teamFile" type="file" accept=".xlsx" aria-label="Upload team file" />
       <div id="teamErrors" class="hint" aria-live="polite"></div>
@@ -1624,6 +1700,17 @@ const renderTeamContent = () => {
       <h3>Team Cognitive Profile</h3>
       <div id="teamMetrics" class="team-metrics"></div>
     </div>
+    ${accessLevel === 'full' ? `
+    <div class="card" style="margin-top:24px;">
+      <h3>Structural Identity Profiles</h3>
+      <p class="structural-team-explain">Each profile maps Authority, Skill, and Temporal Stability into a single operational identity. The radar visual animates the three dimensions as a live structural signature for teams who operate off script under pressure.</p>
+      <div id="teamStructuralProfiles" class="team-structural-grid"></div>
+    </div>
+    <div class="card" style="margin-top:24px;">
+      <h3>Structural Dimension Summary</h3>
+      <div id="teamStructuralSummary"></div>
+    </div>
+    ` : ''}
     <div class="card" style="margin-top:24px;">
       <h3>Individuals overview</h3>
       <div id="teamIndividuals" class="team-list"></div>
@@ -1708,7 +1795,9 @@ const handleTeamFile = async (event) => {
   const sheet = workbook.Sheets[sheetName];
   const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-  const required = ['Name', 'Primary Archetype', 'Secondary Archetype'];
+  const required = state.teamAccessLevel === 'full'
+    ? ['Name', 'Primary Archetype', 'Secondary Archetype', 'Identity']
+    : ['Name', 'Primary Archetype', 'Secondary Archetype'];
   const missing = required.filter((head) => !Object.keys(rows[0] || {}).includes(head));
   if (missing.length > 0) {
     errors.textContent = `Missing headers: ${missing.join(', ')}`;
@@ -1716,12 +1805,28 @@ const handleTeamFile = async (event) => {
   }
 
   errors.textContent = '';
-  const cleaned = rows.map((row) => ({
-    name: row['Name'].toString().trim(),
-    primary: row['Primary Archetype'].toString().trim(),
-    secondary: row['Secondary Archetype'].toString().trim(),
-    role: row['Role'] ? row['Role'].toString().trim() : 'Player',
-  })).filter((row) => row.name && row.primary);
+  const cleaned = rows.map((row) => {
+    const identity = row['Identity'] ? row['Identity'].toString().trim() : '';
+    const structuralScores = state.teamAccessLevel === 'full'
+      ? structuralScoresFromIdentity(identity)
+      : null;
+    return {
+      name: row['Name'].toString().trim(),
+      primary: row['Primary Archetype'].toString().trim(),
+      secondary: row['Secondary Archetype'].toString().trim(),
+      role: row['Role'] ? row['Role'].toString().trim() : 'Player',
+      identity,
+      structuralScores,
+    };
+  }).filter((row) => row.name && row.primary);
+
+  if (state.teamAccessLevel === 'full') {
+    const invalid = cleaned.filter((row) => !row.identity || !row.structuralScores);
+    if (invalid.length) {
+      errors.textContent = 'Identity values must match the Structural Identity list.';
+      return;
+    }
+  }
 
   buildTeamDashboard(cleaned);
 };
@@ -1741,10 +1846,107 @@ const buildTeamDashboard = (rows) => {
   renderTeamProfile(primaryCounts, rows.length);
   renderIndividuals(rows);
   renderTeamMetrics(rows);
+  if (state.teamAccessLevel === 'full') {
+    renderTeamStructuralProfiles(rows);
+    renderTeamStructuralSummary(rows);
+  }
   const teamPdfBtn = document.getElementById('teamPdfBtn');
   if (teamPdfBtn) {
     teamPdfBtn.disabled = !rows.length;
   }
+};
+
+const renderTeamStructuralProfiles = (rows) => {
+  const container = document.getElementById('teamStructuralProfiles');
+  if (!container) return;
+  if (!window.Plotly) {
+    container.innerHTML = '<p class="hint">Structural visuals unavailable. Refresh to load charts.</p>';
+    return;
+  }
+
+  container.innerHTML = rows.map((row, index) => {
+    const identity = row.identity || 'Unknown';
+    return `
+      <div class="structural-profile-card">
+        <div class="structural-profile-header">
+          <h4>${escapeHtml(row.name)}</h4>
+          <p>${escapeHtml(identity)}</p>
+        </div>
+        <div id="teamRadar-${index}" class="structural-radar-mini"></div>
+      </div>
+    `;
+  }).join('');
+
+  rows.forEach((row, index) => {
+    const scores = row.structuralScores;
+    if (!scores) return;
+    const radarEl = document.getElementById(`teamRadar-${index}`);
+    if (!radarEl) return;
+    const labels = ['Authority Differentiation', 'Skill Differentiation', 'Temporal Stability'];
+    Plotly.newPlot(radarEl, [{
+      type: 'scatterpolar',
+      r: [1, 1, 1, 1],
+      theta: [...labels, labels[0]],
+      fill: 'toself',
+      line: { color: '#ff6b35', width: 2 },
+      fillcolor: 'rgba(255, 107, 53, 0.18)',
+    }], {
+      polar: {
+        radialaxis: { visible: true, range: [1, 5], tickvals: [1, 3, 5], tickfont: { color: '#5e5e5e', size: 9 }, gridcolor: 'rgba(15, 23, 42, 0.1)' },
+        angularaxis: { tickfont: { color: '#111', size: 9 }, gridcolor: 'rgba(15, 23, 42, 0.08)' },
+      },
+      showlegend: false,
+      margin: { t: 10, r: 10, b: 10, l: 10 },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      annotations: [{
+        text: escapeHtml(row.name),
+        showarrow: false,
+        x: 0.5,
+        y: 0.5,
+        xref: 'paper',
+        yref: 'paper',
+        font: { size: 10, color: '#111', family: 'Inter, Helvetica Neue, Arial, sans-serif' },
+      }],
+    }, { displayModeBar: false, responsive: true });
+
+    const target = [scores.authority, scores.skill, scores.stability, scores.authority];
+    setTimeout(() => {
+      Plotly.animate(radarEl, { data: [{ r: target }] }, { transition: { duration: 600, easing: 'cubic-in-out' }, frame: { duration: 600, redraw: true } });
+    }, 120 + (index * 40));
+  });
+};
+
+const renderTeamStructuralSummary = (rows) => {
+  const container = document.getElementById('teamStructuralSummary');
+  if (!container) return;
+  const scored = rows.filter((row) => row.structuralScores);
+  if (!scored.length) {
+    container.innerHTML = '<p class="hint">No structural profiles available.</p>';
+    return;
+  }
+  const totals = scored.reduce((acc, row) => {
+    acc.authority += row.structuralScores.authority;
+    acc.skill += row.structuralScores.skill;
+    acc.stability += row.structuralScores.stability;
+    return acc;
+  }, { authority: 0, skill: 0, stability: 0 });
+  const avg = {
+    authority: Math.round((totals.authority / scored.length) * 10) / 10,
+    skill: Math.round((totals.skill / scored.length) * 10) / 10,
+    stability: Math.round((totals.stability / scored.length) * 10) / 10,
+  };
+  const authorityLabel = structuralDescriptors.authority[Math.round(avg.authority) - 1];
+  const skillLabel = structuralDescriptors.skill[Math.round(avg.skill) - 1];
+  const stabilityLabel = structuralDescriptors.stability[Math.round(avg.stability) - 1];
+  container.innerHTML = `
+    <div class="structural-summary">
+      <div><strong>Authority Differentiation:</strong> ${authorityLabel} (avg ${avg.authority}/5)</div>
+      <div><strong>Skill Differentiation:</strong> ${skillLabel} (avg ${avg.skill}/5)</div>
+      <div><strong>Temporal Stability:</strong> ${stabilityLabel} (avg ${avg.stability}/5)</div>
+    </div>
+    <p class="structural-summary-line">This team trends toward ${authorityLabel.toLowerCase()} authority, ${skillLabel.toLowerCase()} skill structure, and ${stabilityLabel.toLowerCase()} stability. Under pressure this supports ${buildStructuralStrengthVulnerability({ authority: Math.round(avg.authority), skill: Math.round(avg.skill), stability: Math.round(avg.stability) }).strength}, but can drift toward ${buildStructuralStrengthVulnerability({ authority: Math.round(avg.authority), skill: Math.round(avg.skill), stability: Math.round(avg.stability) }).vulnerability}.</p>
+  `;
 };
 
 const renderTeamChart = (primaryCounts, secondaryCounts) => {
