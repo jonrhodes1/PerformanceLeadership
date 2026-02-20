@@ -719,6 +719,13 @@ const scoreToAngle = (score) => -90 + ((clampScore(score) - 1) / 8) * 180;
 
 const getPrefs = (archetype) => state.goalRiskPaceMap[archetype] || null;
 
+const escapeHtml = (value) => String(value || '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
 const riskColour = (score) => {
   const val = clampScore(score);
   if (val <= 3) return '#2aa6a1';
@@ -1229,6 +1236,102 @@ const downloadPDF = (primaryName, secondaryName) => {
   URL.revokeObjectURL(url);
 };
 
+const downloadTeamPDF = (rows) => {
+  if (!rows || !rows.length) return;
+
+  const primaryCounts = {};
+  rows.forEach((row) => {
+    primaryCounts[row.primary] = (primaryCounts[row.primary] || 0) + 1;
+  });
+  const sorted = Object.entries(primaryCounts).sort((a, b) => b[1] - a[1]);
+  const topTwo = sorted.slice(0, 2).map((item) => item[0]);
+  const missing = state.archetypes.map((a) => a.name).filter((name) => !primaryCounts[name]);
+
+  const profileRows = rows
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((person) => {
+      const pref = getPrefs(person.primary) || {};
+      return `
+        <tr>
+          <td>${escapeHtml(person.name)}</td>
+          <td>${escapeHtml(person.role || 'Player')}</td>
+          <td>${escapeHtml(person.primary)}</td>
+          <td>${escapeHtml(person.secondary || 'Not set')}</td>
+          <td>${escapeHtml(pref.goalComms || 'Not set')}</td>
+          <td>${escapeHtml(pref.feedbackStyle || 'Not set')}</td>
+        </tr>
+      `;
+    }).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8"/>
+      <title>Team Archetypes Report</title>
+      <style>
+        @page { margin: 20mm; }
+        body { font-family: Arial, sans-serif; line-height: 1.45; color: #111; }
+        h1 { margin: 0 0 8px; font-size: 28px; }
+        h2 { margin: 20px 0 8px; font-size: 18px; }
+        p { margin: 6px 0; }
+        .meta { color: #5e5e5e; margin-bottom: 14px; }
+        .panel { border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px; margin: 14px 0; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+        th, td { border: 1px solid #dcdcdc; padding: 8px; vertical-align: top; text-align: left; }
+        th { background: #f7f7f7; }
+      </style>
+    </head>
+    <body>
+      <h1>Team Archetypes Report</h1>
+      <p class="meta">Generated on ${new Date().toLocaleString()}</p>
+
+      <div class="panel">
+        <h2>Team Snapshot</h2>
+        <div class="summary-grid">
+          <p><strong>Total people:</strong> ${rows.length}</p>
+          <p><strong>Most common archetypes:</strong> ${escapeHtml(topTwo.join(', ') || 'Not enough data')}</p>
+          <p><strong>Least represented:</strong> ${escapeHtml(missing.length ? missing.join(', ') : 'None missing')}</p>
+          <p><strong>Role split:</strong> ${escapeHtml(`Players ${rows.filter((r) => (r.role || 'Player') === 'Player').length}, Coaches ${rows.filter((r) => r.role === 'Coach').length}`)}</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Individuals Communication Overview</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Primary</th>
+              <th>Secondary</th>
+              <th>Goal Communication</th>
+              <th>Feedback Style</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${profileRows}
+          </tbody>
+        </table>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const win = window.open('', '_blank', 'noopener,noreferrer');
+  if (!win) {
+    alert('Please allow pop-ups to export the team report.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 350);
+};
+
 const renderArchetypeWheel = (primaryName, secondaryName) => {
   const wheelContainer = document.getElementById('archetypeWheel');
   if (!wheelContainer) return;
@@ -1397,6 +1500,9 @@ const renderTeamContent = () => {
       </div>
       <input id="teamFile" type="file" accept=".xlsx" aria-label="Upload team file" />
       <div id="teamErrors" class="hint" aria-live="polite"></div>
+      <div class="actions" style="margin-top: 0;">
+        <button class="btn primary" id="teamPdfBtn" ${state.teamRows.length ? '' : 'disabled'}>Download team results PDF</button>
+      </div>
     </div>
     <div class="team-grid team-grid-single" style="margin-top:24px;">
       <div class="card">
@@ -1453,6 +1559,12 @@ const renderTeamContent = () => {
   `;
 
   document.getElementById('teamFile').addEventListener('change', handleTeamFile);
+  const teamPdfBtn = document.getElementById('teamPdfBtn');
+  if (teamPdfBtn) {
+    teamPdfBtn.addEventListener('click', () => {
+      downloadTeamPDF(state.teamRows);
+    });
+  }
   const filterSelect = document.getElementById('teamFilter');
   if (filterSelect && filterSelect.options.length <= 1) {
     state.archetypes.forEach((arch) => {
@@ -1554,6 +1666,10 @@ const buildTeamDashboard = (rows) => {
   renderTeamProfile(primaryCounts, rows.length);
   renderIndividuals(rows);
   renderTeamMetrics(rows);
+  const teamPdfBtn = document.getElementById('teamPdfBtn');
+  if (teamPdfBtn) {
+    teamPdfBtn.disabled = !rows.length;
+  }
 };
 
 const renderTeamChart = (primaryCounts, secondaryCounts) => {
