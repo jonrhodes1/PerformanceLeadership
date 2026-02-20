@@ -1320,16 +1320,15 @@ const downloadTeamPDF = (rows) => {
     </html>
   `;
 
-  const win = window.open('', '_blank', 'noopener,noreferrer');
-  if (!win) {
-    alert('Please allow pop-ups to export the team report.');
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(() => win.print(), 350);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Team_Archetypes_Report_${new Date().getTime()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 const renderArchetypeWheel = (primaryName, secondaryName) => {
@@ -1500,9 +1499,6 @@ const renderTeamContent = () => {
       </div>
       <input id="teamFile" type="file" accept=".xlsx" aria-label="Upload team file" />
       <div id="teamErrors" class="hint" aria-live="polite"></div>
-      <div class="actions" style="margin-top: 0;">
-        <button class="btn primary" id="teamPdfBtn" ${state.teamRows.length ? '' : 'disabled'}>Download team results PDF</button>
-      </div>
     </div>
     <div class="team-grid team-grid-single" style="margin-top:24px;">
       <div class="card">
@@ -1555,6 +1551,9 @@ const renderTeamContent = () => {
     <div class="card" style="margin-top:24px;">
       <h3>Individuals overview</h3>
       <div id="teamIndividuals" class="team-list"></div>
+    </div>
+    <div class="actions" style="margin-top:24px;">
+      <button class="btn primary" id="teamPdfBtn" ${state.teamRows.length ? '' : 'disabled'}>Download team results PDF</button>
     </div>
   `;
 
