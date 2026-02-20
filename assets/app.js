@@ -5,13 +5,18 @@ const state = {
   archetypeMap: {},
   goalRiskPace: [],
   goalRiskPaceMap: {},
+  expeditionRubric: [],
+  expeditionRubricMap: {},
+  loadError: null,
   results: null,
   structural: null,
   selections: { primary: null, secondary: null },
   recency: {},
   templates: {},
   teamRows: [],
+  teamRoles: [],
   teamAccessLevel: 'basic',
+  teamExpeditionType: null,
   teamMapOptions: {
     filter: 'All',
     showNames: true,
@@ -41,6 +46,11 @@ const STORAGE_KEY = 'archetypeResults';
 const STRUCTURAL_KEY = 'archetypeStructuralProfile';
 const TEAM_UNLOCK_KEY = 'unlockedTeam';
 const TEAM_ACCESS_KEY = 'teamAccessLevel';
+
+const resolveAssetPath = (relativePath) => {
+  const base = window.location.href.split('#')[0];
+  return new URL(relativePath, base).toString();
+};
 
 const preferenceStem = 'Select your most natural preference, then your second preference.';
 
@@ -471,6 +481,14 @@ const updateBadge = () => {
 };
 
 const renderAssessment = () => {
+  if (state.loadError) {
+    elements.assessment.innerHTML = `
+      <div class="notice">
+        <p>${state.loadError}</p>
+      </div>
+    `;
+    return;
+  }
   elements.assessment.innerHTML = '';
   
   const card = document.createElement('div');
@@ -815,6 +833,12 @@ const clampScore = (value) => {
   return Math.min(9, Math.max(1, num));
 };
 
+const clampStructuralScore = (value) => {
+  const num = Number(value);
+  if (Number.isNaN(num)) return null;
+  return Math.max(1, Math.min(5, Math.round(num)));
+};
+
 const scoreToPercent = (score) => ((clampScore(score) - 1) / 8) * 100;
 
 const scoreToAngle = (score) => -90 + ((clampScore(score) - 1) / 8) * 180;
@@ -827,6 +851,23 @@ const escapeHtml = (value) => String(value || '')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
+
+const updateTeamRoleFilterOptions = () => {
+  const roleSelect = document.getElementById('teamRoleFilter');
+  if (!roleSelect) return;
+  const roles = Array.isArray(state.teamRoles) ? state.teamRoles : [];
+  roleSelect.innerHTML = '<option value="All">All</option>';
+  roles.forEach((role) => {
+    const opt = document.createElement('option');
+    opt.value = role;
+    opt.textContent = role;
+    roleSelect.appendChild(opt);
+  });
+  if (!roles.includes(state.teamMapOptions.role)) {
+    state.teamMapOptions.role = 'All';
+  }
+  roleSelect.value = state.teamMapOptions.role;
+};
 
 const riskColour = (score) => {
   const val = clampScore(score);
@@ -979,6 +1020,14 @@ const animateMetric = (el) => {
 };
 
 const renderResults = () => {
+  if (state.loadError) {
+    elements.resultsContent.innerHTML = `
+      <div class="notice">
+        <p>${state.loadError}</p>
+      </div>
+    `;
+    return;
+  }
   const data = ensureResults();
   elements.resultsContent.innerHTML = '';
   if (!data) {
@@ -1329,7 +1378,7 @@ const downloadPDF = (primaryName, secondaryName) => {
   URL.revokeObjectURL(url);
 };
 
-const downloadTeamPDF = (rows) => {
+const downloadTeamPDF = async (rows) => {
   if (!rows || !rows.length) return;
 
   const primaryCounts = {};
@@ -1340,27 +1389,98 @@ const downloadTeamPDF = (rows) => {
   const topTwo = sorted.slice(0, 2).map((item) => item[0]);
   const missing = state.archetypes.map((a) => a.name).filter((name) => !primaryCounts[name]);
 
+  const safeDescriptor = (name) => {
+    const item = state.archetypeMap[name] || {};
+    return item.descriptor || 'Not set';
+  };
+
   const profileRows = rows
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((person) => {
       const pref = getPrefs(person.primary) || {};
-      const identity = person.identity ? escapeHtml(person.identity) : 'Not set';
-      const scores = person.structuralScores
-        ? `${person.structuralScores.authority}/${person.structuralScores.skill}/${person.structuralScores.stability}`
-        : 'Not set';
       return `
         <tr>
           <td>${escapeHtml(person.name)}</td>
           <td>${escapeHtml(person.role || 'Player')}</td>
           <td>${escapeHtml(person.primary)}</td>
+          <td>${escapeHtml(safeDescriptor(person.primary))}</td>
           <td>${escapeHtml(person.secondary || 'Not set')}</td>
-          ${state.teamAccessLevel === 'full'
-            ? `<td>${identity}</td><td>${scores}</td>`
-            : `<td>${escapeHtml(pref.goalComms || 'Not set')}</td><td>${escapeHtml(pref.feedbackStyle || 'Not set')}</td>`}
+          <td>${escapeHtml(safeDescriptor(person.secondary))}</td>
+          <td>${escapeHtml(pref.goalComms || 'Not set')}</td>
+          <td>${escapeHtml(pref.feedbackStyle || 'Not set')}</td>
         </tr>
       `;
     }).join('');
+
+  let mapImage = '';
+  let teamStructuralImage = '';
+  const individualImages = [];
+  if (window.Plotly) {
+    try {
+      const mapEl = document.getElementById('teamMap');
+      if (mapEl && mapEl.data) {
+        mapImage = await Plotly.toImage(mapEl, { format: 'png', width: 960, height: 620, scale: 2 });
+      }
+    } catch (err) {
+      mapImage = '';
+    }
+
+    try {
+      const teamRadarEl = document.getElementById('teamStructuralRadar');
+      if (teamRadarEl && teamRadarEl.data) {
+        teamStructuralImage = await Plotly.toImage(teamRadarEl, { format: 'png', width: 620, height: 520, scale: 2 });
+      }
+    } catch (err) {
+      teamStructuralImage = '';
+    }
+
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = rows[i];
+      if (!row.structuralScores) continue;
+      const radarEl = document.getElementById(`teamRadar-${i}`);
+      if (!radarEl || !radarEl.data) continue;
+      try {
+        const image = await Plotly.toImage(radarEl, { format: 'png', width: 420, height: 300, scale: 2 });
+        individualImages.push({
+          name: row.name,
+          identity: row.identity || 'Unknown',
+          image,
+        });
+      } catch (err) {
+        // skip failed image
+      }
+    }
+  }
+
+  const scored = rows.filter((row) => row.structuralScores);
+  const structuralSummary = (() => {
+    if (!scored.length) return 'No structural data available.';
+    const totals = scored.reduce((acc, row) => {
+      acc.authority += row.structuralScores.authority;
+      acc.skill += row.structuralScores.skill;
+      acc.stability += row.structuralScores.stability;
+      return acc;
+    }, { authority: 0, skill: 0, stability: 0 });
+    const avg = {
+      authority: Math.round((totals.authority / scored.length) * 10) / 10,
+      skill: Math.round((totals.skill / scored.length) * 10) / 10,
+      stability: Math.round((totals.stability / scored.length) * 10) / 10,
+    };
+    const authorityLabel = structuralDescriptors.authority[Math.round(avg.authority) - 1];
+    const skillLabel = structuralDescriptors.skill[Math.round(avg.skill) - 1];
+    const stabilityLabel = structuralDescriptors.stability[Math.round(avg.stability) - 1];
+    const patterns = buildStructuralStrengthVulnerability({
+      authority: Math.round(avg.authority),
+      skill: Math.round(avg.skill),
+      stability: Math.round(avg.stability),
+    });
+    return `Authority averages ${avg.authority}/5 which trends ${authorityLabel.toLowerCase()}. Skill averages ${avg.skill}/5 which trends ${skillLabel.toLowerCase()}. Stability averages ${avg.stability}/5 which trends ${stabilityLabel.toLowerCase()}. Under pressure this supports ${patterns.strength}, but can drift toward ${patterns.vulnerability}.`;
+  })();
+
+  const expedition = state.teamExpeditionType
+    ? state.expeditionRubricMap[state.teamExpeditionType]
+    : null;
 
   const html = `
     <!DOCTYPE html>
@@ -1369,45 +1489,76 @@ const downloadTeamPDF = (rows) => {
       <meta charset="utf-8"/>
       <title>Team Archetypes Report</title>
       <style>
-        @page { margin: 20mm; }
-        body { font-family: Arial, sans-serif; line-height: 1.45; color: #111; }
-        h1 { margin: 0 0 8px; font-size: 28px; }
-        h2 { margin: 20px 0 8px; font-size: 18px; }
+        @page { margin: 18mm; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; line-height: 1.5; color: #0f172a; }
+        h1, h2, h3 { margin: 0; }
         p { margin: 6px 0; }
-        .meta { color: #5e5e5e; margin-bottom: 14px; }
-        .panel { border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px; margin: 14px 0; }
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
-        th, td { border: 1px solid #dcdcdc; padding: 8px; vertical-align: top; text-align: left; }
-        th { background: #f7f7f7; }
+        .page { page-break-after: always; }
+        .page:last-child { page-break-after: auto; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 16px; }
+        .header h1 { font-size: 26px; letter-spacing: 0.04em; }
+        .meta { color: #6b7280; font-size: 12px; }
+        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.22em; color: #6b7280; margin-bottom: 8px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; font-size: 13px; }
+        .panel { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; background: #ffffff; }
+        .map-image { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; margin-top: 12px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }
+        .table th, .table td { border: 1px solid #e5e7eb; padding: 8px; vertical-align: top; text-align: left; }
+        .table th { background: #f3f4f6; text-transform: uppercase; letter-spacing: 0.12em; font-size: 10px; }
+        .structural-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+        .structural-image { width: 100%; border: 1px solid #e5e7eb; border-radius: 12px; }
+        .note { color: #6b7280; font-size: 12px; }
+        .expedition-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; background: #f9fafb; font-size: 12px; }
+        .expedition-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: #4b5563; margin-bottom: 6px; }
+        .identity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .identity-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+        .identity-card img { width: 100%; border-radius: 10px; border: 1px solid #e5e7eb; }
+        .identity-name { font-weight: 600; font-size: 13px; }
+        .identity-word { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #6b7280; }
       </style>
     </head>
     <body>
-      <h1>Team Archetypes Report</h1>
-      <p class="meta">Generated on ${new Date().toLocaleString()}</p>
+      <div class="page">
+        <div class="header">
+          <div>
+            <div class="section-title">Team Overview</div>
+            <h1>Team Archetypes Report</h1>
+          </div>
+          <div class="meta">Generated on ${new Date().toLocaleString()}</div>
+        </div>
 
-      <div class="panel">
-        <h2>Team Snapshot</h2>
-        <div class="summary-grid">
-          <p><strong>Total people:</strong> ${rows.length}</p>
-          <p><strong>Most common archetypes:</strong> ${escapeHtml(topTwo.join(', ') || 'Not enough data')}</p>
-          <p><strong>Least represented:</strong> ${escapeHtml(missing.length ? missing.join(', ') : 'None missing')}</p>
-          <p><strong>Role split:</strong> ${escapeHtml(`Players ${rows.filter((r) => (r.role || 'Player') === 'Player').length}, Coaches ${rows.filter((r) => r.role === 'Coach').length}`)}</p>
+        <div class="panel">
+          <div class="summary-grid">
+            <p><strong>Total people:</strong> ${rows.length}</p>
+            <p><strong>Most common archetypes:</strong> ${escapeHtml(topTwo.join(', ') || 'Not enough data')}</p>
+            <p><strong>Least represented:</strong> ${escapeHtml(missing.length ? missing.join(', ') : 'None missing')}</p>
+            <p><strong>Role split:</strong> ${escapeHtml(`Players ${rows.filter((r) => (r.role || 'Player') === 'Player').length}, Coaches ${rows.filter((r) => r.role === 'Coach').length}`)}</p>
+          </div>
+          ${mapImage
+            ? `<img class="map-image" src="${mapImage}" alt="Team connection map" />`
+            : '<p class="note" style="margin-top:12px;">Team connection map unavailable.</p>'}
         </div>
       </div>
 
-      <div class="panel">
-        <h2>Individuals Communication Overview</h2>
-        <table>
+      <div class="page">
+        <div class="header">
+          <div>
+            <div class="section-title">Team Detail</div>
+            <h1>Individual Archetype Profiles</h1>
+          </div>
+          <div class="meta">Primary, secondary, and communication style</div>
+        </div>
+        <table class="table">
           <thead>
             <tr>
               <th>Name</th>
               <th>Role</th>
               <th>Primary</th>
+              <th>Primary Description</th>
               <th>Secondary</th>
-              ${state.teamAccessLevel === 'full'
-                ? '<th>Identity</th><th>Structural Scores</th>'
-                : '<th>Goal Communication</th><th>Feedback Style</th>'}
+              <th>Secondary Description</th>
+              <th>Goal Communication</th>
+              <th>Feedback Style</th>
             </tr>
           </thead>
           <tbody>
@@ -1415,35 +1566,58 @@ const downloadTeamPDF = (rows) => {
           </tbody>
         </table>
       </div>
-      ${state.teamAccessLevel === 'full' ? `
-      <div class="panel">
-        <h2>Structural Dimension Summary</h2>
-        <p>${(() => {
-          const scored = rows.filter((row) => row.structuralScores);
-          if (!scored.length) return 'No structural data available.';
-          const totals = scored.reduce((acc, row) => {
-            acc.authority += row.structuralScores.authority;
-            acc.skill += row.structuralScores.skill;
-            acc.stability += row.structuralScores.stability;
-            return acc;
-          }, { authority: 0, skill: 0, stability: 0 });
-          const avg = {
-            authority: Math.round((totals.authority / scored.length) * 10) / 10,
-            skill: Math.round((totals.skill / scored.length) * 10) / 10,
-            stability: Math.round((totals.stability / scored.length) * 10) / 10,
-          };
-          const authorityLabel = structuralDescriptors.authority[Math.round(avg.authority) - 1];
-          const skillLabel = structuralDescriptors.skill[Math.round(avg.skill) - 1];
-          const stabilityLabel = structuralDescriptors.stability[Math.round(avg.stability) - 1];
-          const patterns = buildStructuralStrengthVulnerability({
-            authority: Math.round(avg.authority),
-            skill: Math.round(avg.skill),
-            stability: Math.round(avg.stability),
-          });
-          return `Authority averages ${avg.authority}/5 which trends ${authorityLabel.toLowerCase()}. Skill averages ${avg.skill}/5 which trends ${skillLabel.toLowerCase()}. Stability averages ${avg.stability}/5 which trends ${stabilityLabel.toLowerCase()}. Under pressure this supports ${patterns.strength}, but can drift toward ${patterns.vulnerability}.`;
-        })()}</p>
+
+      <div class="page">
+        <div class="header">
+          <div>
+            <div class="section-title">Structural Configuration</div>
+            <h1>Team Structural Identity</h1>
+          </div>
+          <div class="meta">Authority, skill, and temporal stability</div>
+        </div>
+        <div class="structural-layout">
+          <div>
+            ${teamStructuralImage
+              ? `<img class="structural-image" src="${teamStructuralImage}" alt="Team structural radar" />`
+              : '<p class="note">Structural radar unavailable.</p>'}
+          </div>
+          <div>
+            <div class="panel">
+              <div class="section-title">Summary</div>
+              <p>${escapeHtml(structuralSummary)}</p>
+            </div>
+            ${expedition ? `
+              <div class="expedition-card" style="margin-top:12px;">
+                <div class="expedition-title">Expedition Benchmark</div>
+                <p><strong>${escapeHtml(expedition.type)}</strong></p>
+                ${expedition.profile ? `<p><strong>Structural profile:</strong> ${escapeHtml(expedition.profile)}</p>` : ''}
+                ${expedition.rationale ? `<p>${escapeHtml(expedition.rationale)}</p>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        </div>
       </div>
-      ` : ''}
+
+      <div class="page">
+        <div class="header">
+          <div>
+            <div class="section-title">Structural Configuration</div>
+            <h1>Individual Structural Identities</h1>
+          </div>
+          <div class="meta">Operational identity signatures</div>
+        </div>
+        ${individualImages.length
+          ? `<div class="identity-grid">
+              ${individualImages.map((item) => `
+                <div class="identity-card">
+                  <div class="identity-name">${escapeHtml(item.name)}</div>
+                  <div class="identity-word">${escapeHtml(item.identity)}</div>
+                  <img src="${item.image}" alt="Structural radar for ${escapeHtml(item.name)}" />
+                </div>
+              `).join('')}
+            </div>`
+          : '<p class="note">Individual structural identity visuals are unavailable.</p>'}
+      </div>
     </body>
     </html>
   `;
@@ -1666,8 +1840,6 @@ const renderTeamContent = (accessLevel = 'basic') => {
             Filter by role
             <select id="teamRoleFilter">
               <option value="All">All</option>
-              <option value="Player">Player</option>
-              <option value="Coach">Coach</option>
             </select>
           </label>
           <label class="toggle">
@@ -1700,21 +1872,28 @@ const renderTeamContent = (accessLevel = 'basic') => {
       <h3>Team Cognitive Profile</h3>
       <div id="teamMetrics" class="team-metrics"></div>
     </div>
-    ${accessLevel === 'full' ? `
-    <div class="card" style="margin-top:24px;">
-      <h3>Structural Identity Profiles</h3>
-      <p class="structural-team-explain">Each profile maps Authority, Skill, and Temporal Stability into a single operational identity. The radar visual animates the three dimensions as a live structural signature for teams who operate off script under pressure.</p>
-      <div id="teamStructuralProfiles" class="team-structural-grid"></div>
-    </div>
-    <div class="card" style="margin-top:24px;">
-      <h3>Structural Dimension Summary</h3>
-      <div id="teamStructuralSummary"></div>
-    </div>
-    ` : ''}
     <div class="card" style="margin-top:24px;">
       <h3>Individuals overview</h3>
       <div id="teamIndividuals" class="team-list"></div>
     </div>
+    ${accessLevel === 'full' ? `
+    <div class="card" style="margin-top:24px;">
+      <h3>Structural Configuration Identity Team Profile</h3>
+      <div class="team-structural-hero">
+        <div class="team-structural-radar">
+          <div id="teamExpeditionLabel" class="structural-expedition-label" aria-live="polite"></div>
+          <div id="teamStructuralRadar" class="structural-radar"></div>
+        </div>
+        <div class="team-structural-summary" id="teamStructuralSummary"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:24px;">
+      <h3>Individual Structural Configuration Identities</h3>
+      <p class="structural-team-explain">Each profile maps Authority, Skill, and Temporal Stability into a single operational identity. The radar visual animates the three dimensions as a live structural signature for teams who operate off script under pressure.</p>
+      <div id="teamStructuralProfiles" class="team-structural-grid"></div>
+      <div id="teamStructuralFeedback" class="structural-feedback"></div>
+    </div>
+    ` : ''}
     <div class="actions" style="margin-top:24px;">
       <button class="btn primary" id="teamPdfBtn" ${state.teamRows.length ? '' : 'disabled'}>Download team results PDF</button>
     </div>
@@ -1745,7 +1924,7 @@ const renderTeamContent = (accessLevel = 'basic') => {
   }
   const roleSelect = document.getElementById('teamRoleFilter');
   if (roleSelect) {
-    roleSelect.value = state.teamMapOptions.role;
+    updateTeamRoleFilterOptions();
   }
 
   document.getElementById('teamFilter').addEventListener('change', (event) => {
@@ -1823,8 +2002,7 @@ const handleTeamFile = async (event) => {
   if (state.teamAccessLevel === 'full') {
     const invalid = cleaned.filter((row) => !row.identity || !row.structuralScores);
     if (invalid.length) {
-      errors.textContent = 'Identity values must match the Structural Identity list.';
-      return;
+      errors.textContent = 'Structural Identity values are missing or invalid. Archetype visuals will load. Structural visuals will be limited.';
     }
   }
 
@@ -1833,6 +2011,9 @@ const handleTeamFile = async (event) => {
 
 const buildTeamDashboard = (rows) => {
   state.teamRows = rows;
+  const roleSet = new Set(rows.map((row) => row.role || 'Player'));
+  state.teamRoles = Array.from(roleSet).sort((a, b) => a.localeCompare(b));
+  updateTeamRoleFilterOptions();
   const primaryCounts = {};
   const secondaryCounts = {};
   rows.forEach((row) => {
@@ -1915,6 +2096,64 @@ const renderTeamStructuralProfiles = (rows) => {
       Plotly.animate(radarEl, { data: [{ r: target }] }, { transition: { duration: 600, easing: 'cubic-in-out' }, frame: { duration: 600, redraw: true } });
     }, 120 + (index * 40));
   });
+  const feedback = document.getElementById('teamStructuralFeedback');
+  if (feedback) {
+    const scored = rows.filter((row) => row.structuralScores);
+    if (!scored.length) {
+      feedback.innerHTML = '<p class="hint">Structural feedback becomes available once Identity values are valid.</p>';
+      return;
+    }
+    feedback.innerHTML = `
+      <div class="structural-block">
+        <h5>Team Structural Feedback</h5>
+        <p>Individual structural signatures map how authority, skill, and stability are distributed across the team. When profiles diverge, coordination strain rises. When profiles cluster, execution speed rises. Use the radar profiles to spot where authority or skill concentration may become a single point of fatigue.</p>
+      </div>
+    `;
+  }
+};
+
+const updateTeamExpeditionOverlay = (expeditionType) => {
+  const expedition = state.expeditionRubricMap[expeditionType];
+  const feedback = document.getElementById('teamExpeditionFeedback');
+  const hint = document.getElementById('teamExpeditionHint');
+  const labelEl = document.getElementById('teamExpeditionLabel');
+
+  if (!expedition) {
+    if (feedback) feedback.innerHTML = '';
+    if (hint) hint.textContent = 'Expedition benchmark unavailable.';
+    return;
+  }
+
+  state.teamExpeditionType = expedition.type;
+  if (hint) {
+    hint.textContent = `Morphing to ${expedition.type} benchmark.`;
+  }
+  if (feedback) {
+    feedback.innerHTML = `
+      <div class="structural-expedition-card">
+        <div class="structural-expedition-title">${escapeHtml(expedition.type)}</div>
+        ${expedition.profile ? `<p><strong>Structural profile:</strong> ${escapeHtml(expedition.profile)}</p>` : ''}
+        ${expedition.rationale ? `<p>${escapeHtml(expedition.rationale)}</p>` : ''}
+      </div>
+    `;
+  }
+  if (labelEl) {
+    labelEl.textContent = expedition.type;
+    labelEl.classList.remove('active');
+    void labelEl.offsetWidth;
+    labelEl.classList.add('active');
+  }
+
+  if (window.Plotly) {
+    const radarEl = document.getElementById('teamStructuralRadar');
+    if (radarEl && radarEl.data && radarEl.data.length > 1) {
+      const target = [expedition.authority, expedition.skill, expedition.stability, expedition.authority];
+      Plotly.animate(radarEl, { data: [{ r: target }], traces: [1] }, {
+        transition: { duration: 800, easing: 'cubic-in-out' },
+        frame: { duration: 800, redraw: true },
+      });
+    }
+  }
 };
 
 const renderTeamStructuralSummary = (rows) => {
@@ -1936,17 +2175,110 @@ const renderTeamStructuralSummary = (rows) => {
     skill: Math.round((totals.skill / scored.length) * 10) / 10,
     stability: Math.round((totals.stability / scored.length) * 10) / 10,
   };
-  const authorityLabel = structuralDescriptors.authority[Math.round(avg.authority) - 1];
-  const skillLabel = structuralDescriptors.skill[Math.round(avg.skill) - 1];
-  const stabilityLabel = structuralDescriptors.stability[Math.round(avg.stability) - 1];
+  const roundedScores = {
+    authority: Math.max(1, Math.min(5, Math.round(avg.authority))),
+    skill: Math.max(1, Math.min(5, Math.round(avg.skill))),
+    stability: Math.max(1, Math.min(5, Math.round(avg.stability))),
+  };
+  const authorityLabel = structuralDescriptors.authority[roundedScores.authority - 1];
+  const skillLabel = structuralDescriptors.skill[roundedScores.skill - 1];
+  const stabilityLabel = structuralDescriptors.stability[roundedScores.stability - 1];
+  const identity = buildStructuralIdentity(roundedScores);
+  const patterns = buildStructuralStrengthVulnerability(roundedScores);
+  const expeditionTypes = state.expeditionRubric.map((item) => item.type);
+  const expeditionType = state.teamExpeditionType || expeditionTypes[0] || null;
+  if (expeditionType) {
+    state.teamExpeditionType = expeditionType;
+  }
+  const expedition = expeditionType ? state.expeditionRubricMap[expeditionType] : null;
+
   container.innerHTML = `
+    <div class="structural-identity">${identity.word}</div>
+    <div class="structural-subtitle">Team Structural Configuration Identity</div>
     <div class="structural-summary">
       <div><strong>Authority Differentiation:</strong> ${authorityLabel} (avg ${avg.authority}/5)</div>
       <div><strong>Skill Differentiation:</strong> ${skillLabel} (avg ${avg.skill}/5)</div>
       <div><strong>Temporal Stability:</strong> ${stabilityLabel} (avg ${avg.stability}/5)</div>
     </div>
-    <p class="structural-summary-line">This team trends toward ${authorityLabel.toLowerCase()} authority, ${skillLabel.toLowerCase()} skill structure, and ${stabilityLabel.toLowerCase()} stability. Under pressure this supports ${buildStructuralStrengthVulnerability({ authority: Math.round(avg.authority), skill: Math.round(avg.skill), stability: Math.round(avg.stability) }).strength}, but can drift toward ${buildStructuralStrengthVulnerability({ authority: Math.round(avg.authority), skill: Math.round(avg.skill), stability: Math.round(avg.stability) }).vulnerability}.</p>
+    <p class="structural-summary-line">This team trends toward ${authorityLabel.toLowerCase()} authority, ${skillLabel.toLowerCase()} skill structure, and ${stabilityLabel.toLowerCase()} stability. Under pressure this supports ${patterns.strength}, but can drift toward ${patterns.vulnerability}.</p>
+    <div class="structural-expedition-controls">
+      <label>
+        Expedition overlay
+        <select id="teamExpeditionSelect">
+          ${expeditionTypes.length
+            ? expeditionTypes.map((type) => `
+              <option value="${escapeHtml(type)}" ${type === expeditionType ? 'selected' : ''}>${escapeHtml(type)}</option>
+            `).join('')
+            : '<option value="">No expedition profiles loaded</option>'}
+        </select>
+      </label>
+      <p id="teamExpeditionHint" class="structural-expedition-hint">${expeditionType ? `Morphing to ${escapeHtml(expeditionType)} benchmark.` : 'Expedition benchmarks unavailable.'}</p>
+    </div>
+    <div id="teamExpeditionFeedback" class="structural-expedition-feedback"></div>
   `;
+
+  const expeditionSelect = document.getElementById('teamExpeditionSelect');
+  if (expeditionSelect && expeditionTypes.length) {
+    expeditionSelect.value = expeditionType;
+    expeditionSelect.addEventListener('change', (event) => {
+      updateTeamExpeditionOverlay(event.target.value);
+    });
+  }
+
+  if (window.Plotly) {
+    const radarEl = document.getElementById('teamStructuralRadar');
+    if (radarEl) {
+      const labels = ['Authority Differentiation', 'Skill Differentiation', 'Temporal Stability'];
+      const baseTrace = {
+        type: 'scatterpolar',
+        r: [1, 1, 1, 1],
+        theta: [...labels, labels[0]],
+        fill: 'toself',
+        line: { color: '#ff6b35', width: 2 },
+        fillcolor: 'rgba(255, 107, 53, 0.18)',
+        name: 'Team profile',
+      };
+      const overlayTrace = {
+        type: 'scatterpolar',
+        r: expedition
+          ? [expedition.authority, expedition.skill, expedition.stability, expedition.authority]
+          : [1, 1, 1, 1],
+        theta: [...labels, labels[0]],
+        fill: 'toself',
+        line: { color: '#3f5efb', width: 2, dash: 'dot' },
+        fillcolor: 'rgba(63, 94, 251, 0.12)',
+        name: 'Expedition overlay',
+      };
+      Plotly.newPlot(radarEl, [baseTrace, overlayTrace], {
+        polar: {
+          radialaxis: { visible: true, range: [1, 5], tickvals: [1, 3, 5], tickfont: { color: '#5e5e5e', size: 10 }, gridcolor: 'rgba(15, 23, 42, 0.1)' },
+          angularaxis: { tickfont: { color: '#111', size: 11 }, gridcolor: 'rgba(15, 23, 42, 0.08)' },
+        },
+        showlegend: false,
+        margin: { t: 10, r: 10, b: 10, l: 10 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        annotations: [{
+          text: identity.word,
+          showarrow: false,
+          x: 0.5,
+          y: 0.5,
+          xref: 'paper',
+          yref: 'paper',
+          font: { size: 16, color: '#111', family: 'Inter, Helvetica Neue, Arial, sans-serif' },
+        }],
+      }, { displayModeBar: false, responsive: true });
+
+      const target = [roundedScores.authority, roundedScores.skill, roundedScores.stability, roundedScores.authority];
+      setTimeout(() => {
+        Plotly.animate(radarEl, { data: [{ r: target }], traces: [0] }, { transition: { duration: 600, easing: 'cubic-in-out' }, frame: { duration: 600, redraw: true } });
+      }, 120);
+    }
+  }
+
+  if (expeditionType) {
+    updateTeamExpeditionOverlay(expeditionType);
+  }
 };
 
 const renderTeamChart = (primaryCounts, secondaryCounts) => {
@@ -2058,12 +2390,22 @@ const renderTeamConnectionMap = (rows) => {
     return acc;
   }, {});
 
-  const filter = state.teamMapOptions.filter;
-  const showNames = state.teamMapOptions.showNames;
-  const roleFilter = state.teamMapOptions.role;
+  const filterSelect = document.getElementById('teamFilter');
+  const roleSelect = document.getElementById('teamRoleFilter');
+  const showNamesToggle = document.getElementById('teamShowNames');
+  const filter = filterSelect ? filterSelect.value : state.teamMapOptions.filter;
+  const roleFilter = roleSelect ? roleSelect.value : state.teamMapOptions.role;
+  const showNames = showNamesToggle ? showNamesToggle.checked : state.teamMapOptions.showNames;
+  state.teamMapOptions.filter = filter;
+  state.teamMapOptions.role = roleFilter;
+  state.teamMapOptions.showNames = showNames;
+  const normalizedRoleFilter = roleFilter === 'All'
+    ? 'all'
+    : roleFilter.toString().trim().toLowerCase();
+  const normalizeRole = (value) => (value || 'Player').toString().trim().toLowerCase();
 
   const filteredRows = rows.filter((row) => {
-    const roleMatch = roleFilter === 'All' || row.role === roleFilter;
+    const roleMatch = normalizedRoleFilter === 'all' || normalizeRole(row.role) === normalizedRoleFilter;
     const archetypeMatch = filter === 'All' || row.primary === filter || row.secondary === filter;
     return roleMatch && archetypeMatch;
   });
@@ -2226,15 +2568,16 @@ const renderTeamConnectionMap = (rows) => {
     return 'middle left';
   });
 
+  const personNames = personNodes.map((p) => p.name);
   const personTrace = {
     type: 'scatter',
     mode: showNames ? 'markers+text' : 'markers',
     name: 'persons',
     x: personNodes.map((p) => p.x),
     y: personNodes.map((p) => p.y),
-    text: personNodes.map((p) => p.name),
-    textposition: personTextPositions,
-    textfont: { size: 12, color: '#111', family: '"Inter", sans-serif' },
+    text: showNames ? personNames : undefined,
+    textposition: showNames ? personTextPositions : undefined,
+    textfont: showNames ? { size: 12, color: '#111', family: '"Inter", sans-serif' } : undefined,
     marker: {
       size: 8,
       color: personNodes.map((p) => archetypeColours[p.primary] || '#111'),
@@ -2551,22 +2894,80 @@ const renderExamples = () => {
   `;
 };
 
+const loadExpeditionRubric = async () => {
+  if (!window.XLSX) return;
+  try {
+    const response = await fetch(resolveAssetPath('Expedition_Structural_Rubric.xlsx'));
+    if (!response.ok) return;
+    const data = await response.arrayBuffer();
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    const cleaned = rows.map((row) => {
+      const type = row['Expedition Type'] ? row['Expedition Type'].toString().trim() : '';
+      const authority = clampStructuralScore(row['Authority Differentiation (1-5)']);
+      const skill = clampStructuralScore(row['Skill Differentiation (1-5)']);
+      const stability = clampStructuralScore(row['Temporal Stability (1-5)']);
+      const rationale = row['Rationale for Scores'] ? row['Rationale for Scores'].toString().trim() : '';
+      const profile = row['Structural Profile'] ? row['Structural Profile'].toString().trim() : '';
+      if (!type || authority == null || skill == null || stability == null) return null;
+      return {
+        type,
+        authority,
+        skill,
+        stability,
+        rationale,
+        profile,
+      };
+    }).filter(Boolean);
+
+    state.expeditionRubric = cleaned;
+    state.expeditionRubricMap = cleaned.reduce((acc, item) => {
+      acc[item.type] = item;
+      return acc;
+    }, {});
+    if (!state.teamExpeditionType && cleaned.length) {
+      state.teamExpeditionType = cleaned[0].type;
+    }
+  } catch (err) {
+    state.expeditionRubric = [];
+    state.expeditionRubricMap = {};
+  }
+};
+
 const loadData = async () => {
-  const [summary, full, prefs] = await Promise.all([
-    fetch('assets/data/archetypes.json').then((res) => res.json()),
-    fetch('assets/data/archetypes_full.json').then((res) => res.json()),
-    fetch('assets/data/archetype_goal_risk_pace.json').then((res) => res.json()),
-  ]);
+  try {
+    const [summary, full, prefs] = await Promise.all([
+      fetch(resolveAssetPath('assets/data/archetypes.json')).then((res) => {
+        if (!res.ok) throw new Error('Failed to load archetypes.json');
+        return res.json();
+      }),
+      fetch(resolveAssetPath('assets/data/archetypes_full.json')).then((res) => {
+        if (!res.ok) throw new Error('Failed to load archetypes_full.json');
+        return res.json();
+      }),
+      fetch(resolveAssetPath('assets/data/archetype_goal_risk_pace.json')).then((res) => {
+        if (!res.ok) throw new Error('Failed to load archetype_goal_risk_pace.json');
+        return res.json();
+      }),
+    ]);
 
-  state.archetypes = summary.items;
-  full.items.forEach((row) => {
-    state.archetypeMap[row.archetype] = row;
-  });
+    state.archetypes = summary.items || [];
+    full.items.forEach((row) => {
+      state.archetypeMap[row.archetype] = row;
+    });
 
-  state.goalRiskPace = prefs.items || [];
-  state.goalRiskPace.forEach((row) => {
-    state.goalRiskPaceMap[row.archetype] = row;
-  });
+    state.goalRiskPace = prefs.items || [];
+    state.goalRiskPace.forEach((row) => {
+      state.goalRiskPaceMap[row.archetype] = row;
+    });
+
+    await loadExpeditionRubric();
+    state.loadError = null;
+  } catch (err) {
+    state.loadError = 'Data failed to load. Ensure you are running a local server and refresh.';
+  }
 
   renderAssessment();
   renderExamples();
