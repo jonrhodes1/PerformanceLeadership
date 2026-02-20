@@ -206,6 +206,127 @@ const structuralAuthorityLinkPhrases = {
   'Conditional Authority': 'may balance participation and escalation but must guard against decision lag under fatigue.',
 };
 
+const structuralIdentities = [
+  'Scout', 'Sentry', 'Watchman', 'Lookout', 'Patrol', 'Skipper', 'Helmsman', 'Quartermaster', 'Navigator', 'Signalman',
+  'Warden', 'Ranger', 'Marshal', 'Commander', 'Captain', 'Chief', 'Corsair', 'Pilot', 'Gunner', 'Boatswain',
+  'Coxswain', 'Brigadier', 'Sentinel', 'Vanguard', 'Outrider', 'Pathfinder', 'Surveyor', 'Recon', 'Tracker', 'Forager',
+  'Medic', 'Engineer', 'Mechanic', 'Armourer', 'Artillerist', 'Strategist', 'Tactician', 'Controller', 'Operator', 'Dispatcher',
+  'Courier', 'Liaison', 'Overseer', 'Inspector', 'Custodian', 'Steward', 'Keeper', 'Guardian', 'Protector', 'Ensign',
+  'Signaller', 'Telegraphist', 'Logistician', 'Coordinator', 'Planner', 'Foreman', 'Adjutant', 'Major', 'Colonel', 'Lieutenant',
+  'Sergeant', 'Corporal', 'Cadet', 'Midshipman', 'Mate', 'Chieftain', 'Observer', 'Examiner', 'Auditor', 'Monitor',
+  'Advocate', 'Envoy', 'Pioneer', 'Guard', 'Warder', 'Skirmisher', 'Breacher', 'Sapper', 'Seaman', 'Airman',
+  'Crewman', 'Pointman', 'Pickett', 'Gatekeeper', 'Caretaker', 'Storekeeper', 'Paymaster', 'Ordnance', 'Communicator', 'Regulator',
+  'Supervisor', 'Director', 'Commodore', 'Admiral', 'Steersman', 'Rifleman', 'Infantryman', 'Grenadier', 'Marksman', 'Dragoon',
+  'Lancer', 'Trooper', 'Recruit', 'Veteran', 'Submariner', 'Aviator', 'Aircrew', 'Loadmaster', 'Shipwright', 'Master',
+  'Officer', 'Cartographer', 'Rigger', 'Boatsman', 'Harbourmaster', 'Dockmaster', 'Radioman', 'Watchkeeper', 'Relayman', 'Stoker',
+  'Guardmaster', 'Watchstander', 'Signalist', 'Helm', 'Guide',
+];
+
+const structuralDescriptors = {
+  authority: ['Informal', 'Shared', 'Conditional', 'Role-Based', 'Command'],
+  skill: ['Generalist', 'Flexible', 'Layered', 'Specialist', 'Elite Specialist'],
+  stability: ['Volatile', 'Consolidating', 'Adaptive', 'Stable', 'Fixed'],
+};
+
+const buildStructuralIdentity = (scores) => {
+  const authority = Math.max(1, Math.min(5, scores.authority));
+  const skill = Math.max(1, Math.min(5, scores.skill));
+  const stability = Math.max(1, Math.min(5, scores.stability));
+  const index = (authority - 1) * 25 + (skill - 1) * 5 + (stability - 1);
+  return {
+    index,
+    word: structuralIdentities[index] || 'Scout',
+  };
+};
+
+const buildStructuralStrengthVulnerability = (scores) => {
+  const strength = [];
+  const vulnerability = [];
+
+  if (scores.authority >= 4) {
+    strength.push('decisive control');
+    vulnerability.push('suppressed dissent');
+  } else if (scores.authority <= 2) {
+    strength.push('collective alignment');
+    vulnerability.push('slow decisions');
+  } else {
+    strength.push('balanced escalation');
+    vulnerability.push('hesitation at thresholds');
+  }
+
+  if (scores.skill >= 4) {
+    strength.push('expert depth');
+    vulnerability.push('specialist silos');
+  } else if (scores.skill <= 2) {
+    strength.push('role flexibility');
+    vulnerability.push('blurred ownership');
+  } else {
+    strength.push('adaptive overlap');
+    vulnerability.push('accountability drift');
+  }
+
+  if (scores.stability >= 4) {
+    strength.push('predictable rhythm');
+    vulnerability.push('rigidity under change');
+  } else if (scores.stability <= 2) {
+    strength.push('rapid adjustment');
+    vulnerability.push('structural ambiguity');
+  } else {
+    strength.push('responsive stability');
+    vulnerability.push('subtle hierarchy shifts');
+  }
+
+  return {
+    strength: strength.join(', '),
+    vulnerability: vulnerability.join(', '),
+  };
+};
+
+const buildStructuralInterpretations = (scores) => {
+  const authorityLabel = structuralDescriptors.authority[scores.authority - 1];
+  const skillLabel = structuralDescriptors.skill[scores.skill - 1];
+  const stabilityLabel = structuralDescriptors.stability[scores.stability - 1];
+
+  return {
+    authority: `Authority is ${authorityLabel}, which sets how decision rights concentrate under fatigue.`,
+    skill: `Skill structure is ${skillLabel}, which shapes specialist depth and coverage under load.`,
+    stability: `Temporal stability is ${stabilityLabel}, which influences predictability when pressure persists.`,
+  };
+};
+
+const buildStructuralArchetypeLink = (primaryArchetype, scores) => {
+  if (!primaryArchetype) return '';
+  const baseMap = {
+    Anchor: { enhance: 'calm structure', challenge: 'flexibility under volatility' },
+    Connector: { enhance: 'shared cohesion', challenge: 'decisive confrontation' },
+    Navigator: { enhance: 'directional clarity', challenge: 'distributed ownership' },
+    Guardian: { enhance: 'risk control', challenge: 'speed under ambiguity' },
+    Explorer: { enhance: 'option generation', challenge: 'execution discipline' },
+    Energiser: { enhance: 'momentum', challenge: 'pace control' },
+    Synchroniser: { enhance: 'timing and rhythm', challenge: 'rapid pivots' },
+    'Decision-Maker': { enhance: 'decisive action', challenge: 'psychological safety' },
+    Innovator: { enhance: 'bold reframing', challenge: 'operational consistency' },
+  };
+
+  const base = baseMap[primaryArchetype] || { enhance: 'performance clarity', challenge: 'coordination discipline' };
+  let enhance = base.enhance;
+  let challenge = base.challenge;
+
+  if (scores.authority >= 4) {
+    enhance = `${enhance} and decisive control`;
+  } else if (scores.authority <= 2) {
+    enhance = `${enhance} and shared alignment`;
+  }
+
+  if (scores.stability <= 2) {
+    challenge = `${challenge} as structure shifts`;
+  } else if (scores.stability >= 4) {
+    challenge = `${challenge} without becoming rigid`;
+  }
+
+  return `As a ${primaryArchetype}, this structural configuration will enhance ${enhance} and challenge ${challenge}.`;
+};
+
 const hashString = (value) => {
   let hash = 0;
   for (let i = 0; i < value.length; i += 1) {
@@ -299,8 +420,8 @@ const ensureStructuralProfile = () => {
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.code) return null;
-    if (!parsed.authority || !parsed.skill || !parsed.temporal) return null;
-    if (typeof parsed.authority.score !== 'number' || typeof parsed.skill.score !== 'number' || typeof parsed.temporal.score !== 'number') {
+    if (!parsed.structuralScores || typeof parsed.structuralIndex !== 'number' || !parsed.structuralArchetypeWord) return null;
+    if (typeof parsed.structuralScores.authority !== 'number' || typeof parsed.structuralScores.skill !== 'number' || typeof parsed.structuralScores.stability !== 'number') {
       return null;
     }
     return parsed;
@@ -408,73 +529,31 @@ const buildStructuralLinkSentence = (primaryArchetype, authorityLabel) => {
 
 const renderStructuralOutput = (payload) => {
   const output = document.getElementById('structuralOutput');
-  if (!output) return;
-  const authority = payload?.authority || null;
-  const skill = payload?.skill || null;
-  const temporal = payload?.temporal || null;
-  const primary = (state.results && state.results.primaryArchetype) || (ensureResults() || {}).primaryArchetype;
-  const linkSentence = authority ? buildStructuralLinkSentence(primary, authority.label) : '';
-  const authorityValue = authority ? structuralScoreToPercent(authority.score) : 0;
-  const skillValue = skill ? structuralScoreToPercent(skill.score) : 0;
-  const temporalValue = temporal ? structuralScoreToPercent(temporal.score) : 0;
+  if (!output || !payload?.structuralScores) return;
+  const scores = payload.structuralScores;
+  const identity = payload.structuralArchetypeWord || buildStructuralIdentity(scores).word;
+  const interpretations = buildStructuralInterpretations(scores);
+  const patterns = buildStructuralStrengthVulnerability(scores);
 
   output.innerHTML = `
-    <div class="structural-thermo-grid structural-thermo-results">
-      <div class="structural-thermo">
-        <div class="structural-thermo-title">Authority Differentiation</div>
-        <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${authorityValue}">
-            <div class="structural-thermo-fill"></div>
-          </div>
-          <div class="structural-thermo-scale">
-            <span>${structuralDiagnosticModel.authority.scale.maxLabel}</span>
-            <span>${structuralDiagnosticModel.authority.scale.minLabel}</span>
-          </div>
-        </div>
-        <div class="structural-state">${authority ? authority.label : 'Select an option to reveal the state.'}</div>
-        <p class="structural-interpretation">${authority ? authority.interpretation : ''}</p>
+    <div class="structural-identity">${identity}</div>
+    <div class="structural-subtitle">Structural Configuration Identity</div>
+    <div class="structural-interpretations">
+      <div>
+        <h5>Authority Interpretation</h5>
+        <p>${interpretations.authority}</p>
       </div>
-      <div class="structural-thermo">
-        <div class="structural-thermo-title">Skill Differentiation</div>
-        <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${skillValue}">
-            <div class="structural-thermo-fill"></div>
-          </div>
-          <div class="structural-thermo-scale">
-            <span>${structuralDiagnosticModel.skill.scale.maxLabel}</span>
-            <span>${structuralDiagnosticModel.skill.scale.minLabel}</span>
-          </div>
-        </div>
-        <div class="structural-state">${skill ? skill.label : 'Select an option to reveal the state.'}</div>
-        <p class="structural-interpretation">${skill ? skill.interpretation : ''}</p>
+      <div>
+        <h5>Skill Interpretation</h5>
+        <p>${interpretations.skill}</p>
       </div>
-      <div class="structural-thermo">
-        <div class="structural-thermo-title">Temporal Stability</div>
-        <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${temporalValue}">
-            <div class="structural-thermo-fill"></div>
-          </div>
-          <div class="structural-thermo-scale">
-            <span>${structuralDiagnosticModel.temporal.scale.maxLabel}</span>
-            <span>${structuralDiagnosticModel.temporal.scale.minLabel}</span>
-          </div>
-        </div>
-        <div class="structural-state">${temporal ? temporal.label : 'Select an option to reveal the state.'}</div>
-        <p class="structural-interpretation">${temporal ? temporal.interpretation : ''}</p>
+      <div>
+        <h5>Stability Interpretation</h5>
+        <p>${interpretations.stability}</p>
       </div>
     </div>
-    <p class="structural-explain">Authority Differentiation determines clarity and speed of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained pressure.</p>
-    ${linkSentence ? `<p class="structural-link">${linkSentence}</p>` : ''}
+    <p class="structural-summary-line">You operate within a ${identity} configuration. Authority is ${structuralDescriptors.authority[scores.authority - 1].toLowerCase()}, skill structure is ${structuralDescriptors.skill[scores.skill - 1].toLowerCase()}, and temporal stability is ${structuralDescriptors.stability[scores.stability - 1].toLowerCase()}. Under pressure this tends to produce ${patterns.strength}, but may drift toward ${patterns.vulnerability} if cognitive load increases.</p>
   `;
-
-  output.querySelectorAll('.structural-thermo-track').forEach((track) => {
-    const value = Number(track.dataset.value) || 0;
-    const fill = track.querySelector('.structural-thermo-fill');
-    if (!fill) return;
-    setTimeout(() => {
-      fill.style.height = `${Math.max(0, Math.min(100, value))}%`;
-    }, 120);
-  });
 };
 
 const renderStructuralDiagnostic = () => {
@@ -525,7 +604,6 @@ const renderStructuralDiagnostic = () => {
         ${buildQuestionBlock('skill')}
         ${buildQuestionBlock('temporal')}
       </div>
-      <div id="structuralOutput"></div>
       <div class="structural-actions">
         <button class="btn primary" id="structuralFinishBtn" disabled>Finish</button>
       </div>
@@ -543,37 +621,37 @@ const renderStructuralDiagnostic = () => {
     const skillOption = nextSelections.skill ? getStructuralOption('skill', nextSelections.skill) : null;
     const temporalOption = nextSelections.temporal ? getStructuralOption('temporal', nextSelections.temporal) : null;
 
-    const payload = {
-      authority: authorityOption ? {
-        code: authorityOption.code,
-        label: authorityOption.label,
-        score: authorityOption.score,
-        interpretation: authorityOption.interpretation,
-      } : null,
-      skill: skillOption ? {
-        code: skillOption.code,
-        label: skillOption.label,
-        score: skillOption.score,
-        interpretation: skillOption.interpretation,
-      } : null,
-      temporal: temporalOption ? {
-        code: temporalOption.code,
-        label: temporalOption.label,
-        score: temporalOption.score,
-        interpretation: temporalOption.interpretation,
-      } : null,
-    };
-
-    renderStructuralOutput(payload);
-
-    if (payload.authority || payload.skill || payload.temporal) {
+    if (authorityOption && skillOption && temporalOption) {
+      const structuralScores = {
+        authority: authorityOption.score,
+        skill: skillOption.score,
+        stability: temporalOption.score,
+      };
+      const identity = buildStructuralIdentity(structuralScores);
+      const payload = {
+        structuralScores,
+        structuralIndex: identity.index,
+        structuralArchetypeWord: identity.word,
+        authority: {
+          label: authorityOption.label,
+          score: authorityOption.score,
+        },
+        skill: {
+          label: skillOption.label,
+          score: skillOption.score,
+        },
+        temporal: {
+          label: temporalOption.label,
+          score: temporalOption.score,
+        },
+      };
       saveStructuralProfile(payload);
       state.structural = payload;
     }
 
     const finishBtn = document.getElementById('structuralFinishBtn');
     if (finishBtn) {
-      finishBtn.disabled = !(payload.authority && payload.skill && payload.temporal);
+      finishBtn.disabled = !(authorityOption && skillOption && temporalOption);
     }
   };
 
@@ -918,13 +996,14 @@ const renderResults = () => {
   const riskPressure = explainRiskPressure(riskScore);
   const leadershipCopy = performanceLeadershipCopy[primary.archetype] || 'Your leadership profile blends best self behaviours, direct communication strengths, and a clear standard for the team.';
   const structural = ensureStructuralProfile();
-  const structuralReady = structural && structural.authority && structural.skill && structural.temporal;
-  const structuralLink = structuralReady
-    ? buildStructuralLinkSentence(primary.archetype, structural.authority.label)
+  const structuralReady = structural && structural.structuralScores;
+  const structuralScores = structuralReady ? structural.structuralScores : null;
+  const structuralIdentityWord = structuralReady ? structural.structuralArchetypeWord : '';
+  const structuralInterpretations = structuralScores ? buildStructuralInterpretations(structuralScores) : null;
+  const structuralPatterns = structuralScores ? buildStructuralStrengthVulnerability(structuralScores) : null;
+  const structuralLink = structuralScores
+    ? buildStructuralArchetypeLink(primary.archetype, structuralScores)
     : '';
-  const structuralAuthorityPercent = structuralReady ? structuralScoreToPercent(structural.authority.score) : 0;
-  const structuralSkillPercent = structuralReady ? structuralScoreToPercent(structural.skill.score) : 0;
-  const structuralTemporalPercent = structuralReady ? structuralScoreToPercent(structural.temporal.score) : 0;
 
   elements.resultsContent.innerHTML = `
     <div style="margin-bottom: 32px;">
@@ -1041,56 +1120,25 @@ const renderResults = () => {
     ${structuralReady ? `
     <div class="card" style="margin-top:24px;">
       <h3>Structural Configuration Under Sustained Pressure</h3>
-      <div class="structural-thermo-grid structural-thermo-results">
-        <div class="structural-thermo">
-          <div class="structural-thermo-title">Authority Differentiation</div>
-          <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralAuthorityPercent}">
-              <div class="structural-thermo-fill"></div>
-            </div>
-            <div class="structural-thermo-scale">
-              <span>${structuralDiagnosticModel.authority.scale.maxLabel}</span>
-              <span>${structuralDiagnosticModel.authority.scale.minLabel}</span>
-            </div>
-          </div>
-          <div class="structural-state">${structural.authority.label}</div>
-          <p class="structural-interpretation">${structural.authority.interpretation}</p>
+      <div class="structural-identity">${structuralIdentityWord}</div>
+      <div class="structural-subtitle">Structural Configuration Identity</div>
+      <div id="structuralRadar" class="structural-radar"></div>
+      <div class="structural-interpretations">
+        <div>
+          <h5>Authority Interpretation</h5>
+          <p>${structuralInterpretations.authority}</p>
         </div>
-        <div class="structural-thermo">
-          <div class="structural-thermo-title">Skill Differentiation</div>
-          <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralSkillPercent}">
-              <div class="structural-thermo-fill"></div>
-            </div>
-            <div class="structural-thermo-scale">
-              <span>${structuralDiagnosticModel.skill.scale.maxLabel}</span>
-              <span>${structuralDiagnosticModel.skill.scale.minLabel}</span>
-            </div>
-          </div>
-          <div class="structural-state">${structural.skill.label}</div>
-          <p class="structural-interpretation">${structural.skill.interpretation}</p>
+        <div>
+          <h5>Skill Interpretation</h5>
+          <p>${structuralInterpretations.skill}</p>
         </div>
-        <div class="structural-thermo">
-          <div class="structural-thermo-title">Temporal Stability</div>
-          <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralTemporalPercent}">
-              <div class="structural-thermo-fill"></div>
-            </div>
-            <div class="structural-thermo-scale">
-              <span>${structuralDiagnosticModel.temporal.scale.maxLabel}</span>
-              <span>${structuralDiagnosticModel.temporal.scale.minLabel}</span>
-            </div>
-          </div>
-          <div class="structural-state">${structural.temporal.label}</div>
-          <p class="structural-interpretation">${structural.temporal.interpretation}</p>
+        <div>
+          <h5>Stability Interpretation</h5>
+          <p>${structuralInterpretations.stability}</p>
         </div>
       </div>
+      <p class="structural-summary-line">You operate within a ${structuralIdentityWord} configuration. Authority is ${structuralDescriptors.authority[structuralScores.authority - 1].toLowerCase()}, skill structure is ${structuralDescriptors.skill[structuralScores.skill - 1].toLowerCase()}, and temporal stability is ${structuralDescriptors.stability[structuralScores.stability - 1].toLowerCase()}. Under pressure this tends to produce ${structuralPatterns.strength}, but may drift toward ${structuralPatterns.vulnerability} if cognitive load increases.</p>
       <p class="structural-explain">Authority Differentiation determines clarity and speed of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained pressure.</p>
-      <div class="structural-summary">
-        <div><strong>Authority Differentiation:</strong> ${structural.authority.label} (${structural.authority.score}/5)</div>
-        <div><strong>Skill Differentiation:</strong> ${structural.skill.label} (${structural.skill.score}/5)</div>
-        <div><strong>Temporal Stability:</strong> ${structural.temporal.label} (${structural.temporal.score}/5)</div>
-      </div>
       ${structuralLink ? `<p class="structural-link">${structuralLink}</p>` : ''}
     </div>
     ` : ''}
@@ -1102,14 +1150,61 @@ const renderResults = () => {
 
   renderArchetypeWheel(data.primaryArchetype, data.secondaryArchetype);
   initMetricObserver(elements.resultsContent);
-  elements.resultsContent.querySelectorAll('.structural-thermo-track').forEach((track) => {
-    const value = Number(track.dataset.value) || 0;
-    const fill = track.querySelector('.structural-thermo-fill');
-    if (!fill) return;
-    setTimeout(() => {
-      fill.style.height = `${Math.max(0, Math.min(100, value))}%`;
-    }, 120);
-  });
+  if (structuralReady && window.Plotly) {
+    const radarEl = document.getElementById('structuralRadar');
+    if (radarEl) {
+      const scores = [structuralScores.authority, structuralScores.skill, structuralScores.stability];
+      const labels = ['Authority Differentiation', 'Skill Differentiation', 'Temporal Stability'];
+      const baseTrace = {
+        type: 'scatterpolar',
+        r: [1, 1, 1, 1],
+        theta: [...labels, labels[0]],
+        fill: 'toself',
+        line: { color: '#ff6b35', width: 2 },
+        fillcolor: 'rgba(255, 107, 53, 0.18)',
+      };
+      Plotly.newPlot(radarEl, [baseTrace], {
+        polar: {
+          radialaxis: {
+            visible: true,
+            range: [1, 5],
+            tickvals: [1, 2, 3, 4, 5],
+            tickfont: { color: '#5e5e5e' },
+            gridcolor: 'rgba(15, 23, 42, 0.12)',
+          },
+          angularaxis: {
+            tickfont: { color: '#111', size: 12 },
+            gridcolor: 'rgba(15, 23, 42, 0.08)',
+          },
+        },
+        showlegend: false,
+        margin: { t: 20, r: 20, b: 20, l: 20 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        annotations: [
+          {
+            text: structuralIdentityWord,
+            showarrow: false,
+            x: 0.5,
+            y: 0.5,
+            xref: 'paper',
+            yref: 'paper',
+            font: { size: 18, color: '#111', family: 'Inter, Helvetica Neue, Arial, sans-serif' },
+          },
+        ],
+      }, { displayModeBar: false, responsive: true });
+
+      const target = [...scores, scores[0]];
+      setTimeout(() => {
+        Plotly.animate(radarEl, {
+          data: [{ r: target }],
+        }, {
+          transition: { duration: 600, easing: 'cubic-in-out' },
+          frame: { duration: 600, redraw: true },
+        });
+      }, 120);
+    }
+  }
 
   document.getElementById('retakeBtn').addEventListener('click', () => {
     clearResults();
