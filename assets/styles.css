@@ -533,6 +533,48 @@ circle[data-archetype]:hover {
   align-items: start;
 }
 
+.structural-questions {
+  display: grid;
+  gap: 18px;
+}
+
+.structural-question-block {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.structural-question-block h4 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.structural-scenario {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.structural-dimension-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.structural-dimension-list span {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
 .structural-thermo {
   display: grid;
   gap: 8px;
@@ -592,6 +634,18 @@ circle[data-archetype]:hover {
   font-size: 0.75rem;
   color: var(--muted);
   text-align: left;
+}
+
+.structural-state {
+  font-weight: 600;
+  color: #111;
+  font-size: 0.9rem;
+}
+
+.structural-interpretation {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .structural-anchor {

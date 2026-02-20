@@ -66,184 +66,144 @@ const archetypeColours = {
   Innovator: '#bcbd22',
 };
 
-const structuralProfiles = {
-  A: {
-    code: 'A',
-    name: 'Structured Flex Crew',
-    subtitle: 'Command Led Expedition Unit',
-    theme: 'slate',
-    authority: { label: 'Concentrated Authority', value: 86 },
-    skill: { label: 'Variable Skill Differentiation', value: 62 },
-    temporal: { label: 'Stability depends on leader endurance', value: 58 },
-    configSummary: [
-      'High authority differentiation',
-      'Moderate to high skill differentiation',
-      'Variable temporal stability',
+const structuralDiagnosticModel = {
+  authority: {
+    key: 'authority',
+    title: 'Decision Authority Under Pressure',
+    scenario: 'After several weeks of sustained workload, a high stakes decision must be made quickly. Under pressure and limited time, how are decisions most clearly made within your team?',
+    scale: { minLabel: 'Informal Authority', maxLabel: 'Concentrated Authority' },
+    options: [
+      {
+        code: 'A',
+        label: 'Concentrated Authority',
+        score: 5,
+        text: 'One clearly designated leader makes the final call after brief consultation.',
+        interpretation: 'Decision rights concentrate quickly, which accelerates action but can narrow dissent under fatigue.',
+      },
+      {
+        code: 'B',
+        label: 'Role-Based Authority',
+        score: 4,
+        text: 'The most relevant expert leads each decision, even if they are not the formal leader.',
+        interpretation: 'Authority follows expertise, which protects technical quality but can weaken coordination when energy drops.',
+      },
+      {
+        code: 'C',
+        label: 'Shared Authority',
+        score: 2,
+        text: 'The team discusses rapidly and agrees before acting.',
+        interpretation: 'Decisions are shared, which preserves cohesion but can slow action under pressure.',
+      },
+      {
+        code: 'D',
+        label: 'Informal Authority',
+        score: 1,
+        text: 'Whoever feels most confident steps forward and decides.',
+        interpretation: 'Authority is informal, which can spark initiative but increases ambiguity and conflict under fatigue.',
+      },
+      {
+        code: 'E',
+        label: 'Conditional Authority',
+        score: 3,
+        text: 'Authority is generally shared, but shifts formally if predefined thresholds are crossed.',
+        interpretation: 'Authority shifts at thresholds, which balances participation but can delay escalation when time is tight.',
+      },
     ],
-    configDetail: 'Clear command. Defined roles. Decision gravity concentrated at the top.',
-    strength: 'Rapid execution. Decisive response. In hostile environments, hesitation kills. Clear command compresses uncertainty and stabilises action.',
-    vulnerability: 'Leader fatigue. Voice suppression. Silent compliance. Under prolonged stress, the leader becomes the bottleneck. Subordinates conserve energy by withholding dissent. Psychological safety erodes quietly.',
-    countermeasures: [
-      'Rotate Pressure: Delegate operational decisions in lower risk scenarios to prevent leader cognitive depletion.',
-      'Structured Dissent: Install a rotating Red Team role, someone assigned to challenge plans without penalty.',
-      'After Action Discipline: Conduct short, formal debriefs after critical decisions. Ask what did we miss and who disagreed silently.',
-      'Fatigue Monitoring: Track leader decision density. Decision fatigue is cumulative.',
-      'Shadow Command: Identify second in command who can assume authority seamlessly under cognitive strain.',
-    ],
-    commands: ['Challenge Authority', 'Rotate Pressure', 'Protect Voice', 'Monitor Fatigue', 'Debrief Hard'],
   },
-  B: {
-    code: 'B',
-    name: 'Agile Experts',
-    subtitle: 'Specialist Expedition Unit',
-    theme: 'blue',
-    authority: { label: 'Role-Based Authority', value: 58 },
-    skill: { label: 'High Skill Differentiation', value: 84 },
-    temporal: { label: 'Moderately Stable with adaptive coordination', value: 62 },
-    configSummary: [
-      'Moderate authority differentiation',
-      'High skill differentiation',
-      'Moderate stability',
+  skill: {
+    key: 'skill',
+    title: 'Role Structure Under Sustained Workload',
+    scenario: 'After three months of working in the same team on the same project, decision fatigue is rising and small mistakes are increasing. How are roles most clearly structured within your team?',
+    scale: { minLabel: 'Very Low Skill Differentiation', maxLabel: 'High Skill Differentiation' },
+    options: [
+      {
+        code: 'A',
+        label: 'High Skill Differentiation',
+        score: 5,
+        text: 'Each member has clearly defined specialist responsibilities and rarely operates outside them.',
+        interpretation: 'Specialist ownership is clear, which improves depth but raises dependency on key experts under fatigue.',
+      },
+      {
+        code: 'B',
+        label: 'Moderate to High Skill Differentiation',
+        score: 4,
+        text: 'Members have specialist areas but can cover each other when required.',
+        interpretation: 'Specialist coverage is strong, which supports resilience but still needs clear handover discipline.',
+      },
+      {
+        code: 'C',
+        label: 'Moderate Skill Differentiation',
+        score: 3,
+        text: 'Roles exist but overlap frequently and flexibility is expected.',
+        interpretation: 'Roles overlap, which builds flexibility but can blur accountability when tired.',
+      },
+      {
+        code: 'D',
+        label: 'Low Skill Differentiation',
+        score: 2,
+        text: 'Most members operate as generalists and rotate responsibilities fluidly.',
+        interpretation: 'Generalist coverage spreads load, which aids redundancy but risks inconsistent quality under strain.',
+      },
+      {
+        code: 'E',
+        label: 'Very Low Skill Differentiation',
+        score: 1,
+        text: 'Roles shift depending on daily demand rather than predefined expertise.',
+        interpretation: 'Roles shift daily, which allows adaptation but erodes clarity as fatigue builds.',
+      },
     ],
-    configDetail: 'Expertise drives authority. Decisions follow competence, not rank.',
-    strength: 'Adaptive response. Cognitive depth. The team can reconfigure leadership moment to moment based on domain expertise.',
-    vulnerability: 'Coordination overload. Expert rivalry. Diffuse accountability. Under fatigue, experts defend territory. Integration degrades. Ownership becomes unclear.',
-    countermeasures: [
-      'Designate Integrator: Appoint a rotating Systems Lead responsible solely for cross domain synthesis.',
-      'Brief Under Fatigue: Run structured cross specialty briefings specifically during low energy periods to stress test clarity.',
-      'Define Accountability: Explicitly state decision ownership before execution.',
-      'Simplify Channels: Reduce communication loops under pressure. Over complex systems collapse first.',
-      'Conflict Protocols: Agree in advance how expert disagreements will be resolved.',
-    ],
-    commands: ['Integrate Roles', 'Declare Ownership', 'Simplify Channels', 'Rotate Integrator', 'Resolve Fast'],
   },
-  C: {
-    code: 'C',
-    name: 'Cohesive Mainstays',
-    subtitle: 'Long Term Station Crew',
-    theme: 'green',
-    authority: { label: 'Distributed Authority', value: 28 },
-    skill: { label: 'Low to Moderate Skill Differentiation', value: 46 },
-    temporal: { label: 'High Stability', value: 88 },
-    configSummary: [
-      'Low authority differentiation',
-      'Low to moderate skill differentiation',
-      'High temporal stability',
+  temporal: {
+    key: 'temporal',
+    title: 'Structure Over Time',
+    scenario: 'After months of working together under sustained pressure, emotional and cognitive fatigue are evident. How does the structure of authority and influence evolve over time?',
+    scale: { minLabel: 'Low Stability', maxLabel: 'High Stability' },
+    options: [
+      {
+        code: 'A',
+        label: 'High Stability',
+        score: 5,
+        text: 'Roles and authority remain stable despite fatigue.',
+        interpretation: 'Roles stay stable, which protects predictability but can resist needed shifts under pressure.',
+      },
+      {
+        code: 'B',
+        label: 'Moderately Stable',
+        score: 4,
+        text: 'Structure is mostly stable but adjusts deliberately when required.',
+        interpretation: 'Structure is steady with deliberate adjustment, which supports control and responsiveness.',
+      },
+      {
+        code: 'C',
+        label: 'Adaptive Emergence',
+        score: 3,
+        text: 'Influence shifts subtly as some individuals prove more reliable.',
+        interpretation: 'Influence shifts with reliability, which rewards performance but can unsettle cohesion.',
+      },
+      {
+        code: 'D',
+        label: 'Increasing Consolidation',
+        score: 2,
+        text: 'Authority gradually consolidates around a small group.',
+        interpretation: 'Authority consolidates gradually, which reduces noise but can marginalise quieter voices.',
+      },
+      {
+        code: 'E',
+        label: 'Low Stability',
+        score: 1,
+        text: 'Structure becomes less clear as fatigue increases.',
+        interpretation: 'Structure becomes unclear, which raises anxiety and slows coordinated action.',
+      },
     ],
-    configDetail: 'Relational cohesion is the backbone. Identity precedes structure.',
-    strength: 'Emotional buffer. Trust surplus. Strong cohesion stabilises mood and reduces panic.',
-    vulnerability: 'Decision drag. Conflict avoidance. Groupthink drift. Harmony becomes priority over performance. Dissent feels disloyal.',
-    countermeasures: [
-      'Time Box Decisions: Install strict decision deadlines during operational threats.',
-      'Mandate Dissent: Assign one member to articulate the opposite position before final commitment.',
-      'External Simulation: Run scenario drills where consensus is deliberately disrupted.',
-      'Invite Friction: Normalise respectful disagreement as loyalty, not threat.',
-      'Red Line Protocol: Define in advance when hierarchy overrides consensus.',
-    ],
-    commands: ['Time-Box Decisions', 'Mandate Dissent', 'Invite Friction', 'Override Consensus', 'Disagree Loyal'],
-  },
-  D: {
-    code: 'D',
-    name: 'Structurally Unstable Team',
-    subtitle: 'Ad Hoc Expedition Unit',
-    theme: 'red',
-    authority: { label: 'Distributed Authority without clarity', value: 22 },
-    skill: { label: 'Low Skill Differentiation', value: 24 },
-    temporal: { label: 'Low Stability', value: 18 },
-    configSummary: [
-      'Low authority differentiation',
-      'Low skill differentiation',
-      'Low temporal stability',
-    ],
-    configDetail: 'Fluid. Unclear. Improvised.',
-    strength: 'Short term adaptability. In early phases, flexibility feels liberating.',
-    vulnerability: 'Role confusion. Power contest. Emotional depletion. Ambiguity consumes energy. Unspoken hierarchy emerges chaotically.',
-    countermeasures: [
-      'Define Authority: Write down who decides what immediately.',
-      'Assign Ownership: Every task must have a single named owner.',
-      'Stabilise Roles: Reduce rotation during high threat phases.',
-      'Conflict Early: Surface disagreements before stress amplifies them.',
-      'Codify Structure: Create visible operational map of responsibilities.',
-    ],
-    commands: ['Define Authority', 'Assign Ownership', 'Stabilise Roles', 'Surface Conflict', 'Codify Structure'],
-  },
-  E: {
-    code: 'E',
-    name: 'Tenure Based Stability System',
-    subtitle: 'Veteran Expedition Core',
-    theme: 'earth',
-    authority: { label: 'Moderately Concentrated through tenure', value: 64 },
-    skill: { label: 'Low to Moderate Skill Differentiation', value: 46 },
-    temporal: { label: 'High Stability anchored in history', value: 86 },
-    configSummary: [
-      'Moderate authority differentiation',
-      'Low to moderate skill differentiation',
-      'High temporal stability',
-    ],
-    configDetail: 'Deep relational memory. Shared history governs decisions.',
-    strength: 'Intuitive coordination. Implicit trust. Communication becomes efficient and minimal.',
-    vulnerability: 'Insider bias. Newcomer silence. Cultural rigidity. Experience hardens into gatekeeping. Innovation slows.',
-    countermeasures: [
-      'Elevate New Voices: Formalise structured airtime for newer members.',
-      'Rotate Influence: Intentionally distribute leadership moments.',
-      'Challenge Assumptions: Ask what would an outsider question.',
-      'Cross Role Drills: Force perspective shifts across tenure groups.',
-      'Audit Inclusion: Track who speaks in high stakes moments.',
-    ],
-    commands: ['Elevate Voices', 'Rotate Influence', 'Challenge Assumptions', 'Disrupt Comfort', 'Audit Inclusion'],
-  },
-  F: {
-    code: 'F',
-    name: 'Emergent Hierarchy Team',
-    subtitle: 'Evolving Expedition Structure',
-    theme: 'amber',
-    authority: { label: 'Authority Emergence over time', value: 66 },
-    skill: { label: 'Moderate Skill Differentiation', value: 56 },
-    temporal: { label: 'Dynamic Shift toward consolidation', value: 64 },
-    configSummary: [
-      'Authority increases over time',
-      'Moderate skill differentiation',
-      'Dynamic stability',
-    ],
-    configDetail: 'Structure evolves through performance signals.',
-    strength: 'Competence sorting. Adaptive structure. Authority aligns with demonstrated capability.',
-    vulnerability: 'Power consolidation. Unacknowledged dominance. Marginalised contributors. Informal hierarchy calcifies without review.',
-    countermeasures: [
-      'Name Authority: Make informal power structures explicit.',
-      'Re-Contract Roles: Regularly revisit who holds decision rights.',
-      'Rotate Command Windows: Test authority fluidity in controlled scenarios.',
-      'Feedback Hard: Encourage upward feedback about emerging dominance.',
-      'Prevent Calcification: Schedule authority resets.',
-    ],
-    commands: ['Name Authority', 'Re-Contract Roles', 'Rotate Command', 'Prevent Calcification', 'Invite Feedback'],
   },
 };
 
-const structuralLinkPhrases = {
-  'Structured Flex Crew': {
-    amplified: 'decisive command focus',
-    discipline: 'structured dissent and leader load monitoring',
-  },
-  'Agile Experts': {
-    amplified: 'expert led agility',
-    discipline: 'integration discipline and shared accountability',
-  },
-  'Cohesive Mainstays': {
-    amplified: 'relational cohesion',
-    discipline: 'time bound decisions and constructive dissent',
-  },
-  'Structurally Unstable Team': {
-    amplified: 'short term flexibility',
-    discipline: 'clear decision rights and task ownership',
-  },
-  'Tenure Based Stability System': {
-    amplified: 'deep tacit coordination',
-    discipline: 'inclusive voice channels and rotation of leadership moments',
-  },
-  'Emergent Hierarchy Team': {
-    amplified: 'adaptive competence sorting',
-    discipline: 'explicit role clarity and open re contracting',
-  },
+const structuralAuthorityLinkPhrases = {
+  'Concentrated Authority': 'may maintain decisive control but risk suppressed dissent under fatigue.',
+  'Role-Based Authority': 'may thrive on expertise freedom but must guard against coordination gaps under fatigue.',
+  'Shared Authority': 'may preserve cohesion but must guard against slow decisions under fatigue.',
+  'Informal Authority': 'may enable rapid initiative but must guard against ambiguity and conflict under fatigue.',
+  'Conditional Authority': 'may balance participation and escalation but must guard against decision lag under fatigue.',
 };
 
 const hashString = (value) => {
@@ -337,7 +297,13 @@ const ensureStructuralProfile = () => {
   const raw = localStorage.getItem(STRUCTURAL_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.code) return null;
+    if (!parsed.authority || !parsed.skill || !parsed.temporal) return null;
+    if (typeof parsed.authority.score !== 'number' || typeof parsed.skill.score !== 'number' || typeof parsed.temporal.score !== 'number') {
+      return null;
+    }
+    return parsed;
   } catch (err) {
     return null;
   }
@@ -425,87 +391,82 @@ const renderTransitionCard = () => {
   }
 };
 
-const buildStructuralLinkSentence = (primaryArchetype, profileName) => {
-  const phrases = structuralLinkPhrases[profileName];
-  if (!phrases) {
-    return `As a ${primaryArchetype} operating within the ${profileName} structure, your strengths are amplified and coordination discipline becomes essential under fatigue.`;
-  }
-  const article = /^[AEIOU]/i.test(primaryArchetype) ? 'an' : 'a';
-  return `As ${article} ${primaryArchetype} operating within the ${profileName} structure, your ${phrases.amplified} is amplified, but ${phrases.discipline} becomes essential under fatigue.`;
+const structuralScoreToPercent = (score) => ((Math.max(1, Math.min(5, score)) - 1) / 4) * 100;
+
+const getStructuralOption = (dimensionKey, code) => {
+  const dimension = structuralDiagnosticModel[dimensionKey];
+  if (!dimension) return null;
+  return dimension.options.find((opt) => opt.code === code) || null;
 };
 
-const renderStructuralProfileOutput = (profile) => {
+const buildStructuralLinkSentence = (primaryArchetype, authorityLabel) => {
+  if (!primaryArchetype || !authorityLabel) return '';
+  const article = /^[AEIOU]/i.test(primaryArchetype) ? 'An' : 'A';
+  const phrase = structuralAuthorityLinkPhrases[authorityLabel] || 'should balance decisive action with coordination discipline under fatigue.';
+  return `${article} ${primaryArchetype} within a ${authorityLabel} structure ${phrase}`;
+};
+
+const renderStructuralOutput = (payload) => {
   const output = document.getElementById('structuralOutput');
-  if (!output || !profile) return;
+  if (!output) return;
+  const authority = payload?.authority || null;
+  const skill = payload?.skill || null;
+  const temporal = payload?.temporal || null;
+  const primary = (state.results && state.results.primaryArchetype) || (ensureResults() || {}).primaryArchetype;
+  const linkSentence = authority ? buildStructuralLinkSentence(primary, authority.label) : '';
+  const authorityValue = authority ? structuralScoreToPercent(authority.score) : 0;
+  const skillValue = skill ? structuralScoreToPercent(skill.score) : 0;
+  const temporalValue = temporal ? structuralScoreToPercent(temporal.score) : 0;
+
   output.innerHTML = `
-    <div class="structural-profile structural-theme-${profile.theme}">
-      <div class="structural-profile-header">
-        <h4>${profile.name}</h4>
-        <p>Structural configuration summary</p>
-      </div>
-      <div class="structural-summary">
-        <div><strong>Authority Differentiation:</strong> ${profile.authority.label}</div>
-        <div><strong>Skill Differentiation:</strong> ${profile.skill.label}</div>
-        <div><strong>Temporal Stability:</strong> ${profile.temporal.label}</div>
-      </div>
-      <div class="structural-insights">
-        <div>
-          <h5>Strength Under Isolation</h5>
-          <p>${profile.strength}</p>
-        </div>
-        <div>
-          <h5>Predictable Month Four Vulnerability</h5>
-          <p>${profile.vulnerability}</p>
-        </div>
-        <div>
-          <h5>Recommended Countermeasure</h5>
-          <p>${profile.countermeasure}</p>
-        </div>
-      </div>
-    </div>
-    <div class="structural-thermo-grid">
+    <div class="structural-thermo-grid structural-thermo-results">
       <div class="structural-thermo">
         <div class="structural-thermo-title">Authority Differentiation</div>
         <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${profile.authority.value}">
+          <div class="structural-thermo-track" data-value="${authorityValue}">
             <div class="structural-thermo-fill"></div>
           </div>
           <div class="structural-thermo-scale">
-            <span>Concentrated Authority</span>
-            <span>Distributed Authority</span>
+            <span>${structuralDiagnosticModel.authority.scale.maxLabel}</span>
+            <span>${structuralDiagnosticModel.authority.scale.minLabel}</span>
           </div>
         </div>
-        <div class="structural-anchor">Current anchor: ${profile.authority.label}</div>
+        <div class="structural-state">${authority ? authority.label : 'Select an option to reveal the state.'}</div>
+        <p class="structural-interpretation">${authority ? authority.interpretation : ''}</p>
       </div>
       <div class="structural-thermo">
         <div class="structural-thermo-title">Skill Differentiation</div>
         <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${profile.skill.value}">
+          <div class="structural-thermo-track" data-value="${skillValue}">
             <div class="structural-thermo-fill"></div>
           </div>
           <div class="structural-thermo-scale">
-            <span>High Skill Differentiation</span>
-            <span>Low Skill Differentiation</span>
+            <span>${structuralDiagnosticModel.skill.scale.maxLabel}</span>
+            <span>${structuralDiagnosticModel.skill.scale.minLabel}</span>
           </div>
         </div>
-        <div class="structural-anchor">Current anchor: ${profile.skill.label}</div>
+        <div class="structural-state">${skill ? skill.label : 'Select an option to reveal the state.'}</div>
+        <p class="structural-interpretation">${skill ? skill.interpretation : ''}</p>
       </div>
       <div class="structural-thermo">
         <div class="structural-thermo-title">Temporal Stability</div>
         <div class="structural-thermo-meter">
-          <div class="structural-thermo-track" data-value="${profile.temporal.value}">
+          <div class="structural-thermo-track" data-value="${temporalValue}">
             <div class="structural-thermo-fill"></div>
           </div>
           <div class="structural-thermo-scale">
-            <span>High Stability</span>
-            <span>Low Stability</span>
+            <span>${structuralDiagnosticModel.temporal.scale.maxLabel}</span>
+            <span>${structuralDiagnosticModel.temporal.scale.minLabel}</span>
           </div>
         </div>
-        <div class="structural-anchor">Current anchor: ${profile.temporal.label}</div>
+        <div class="structural-state">${temporal ? temporal.label : 'Select an option to reveal the state.'}</div>
+        <p class="structural-interpretation">${temporal ? temporal.interpretation : ''}</p>
       </div>
     </div>
-    <p class="structural-explain">Authority Differentiation determines speed and clarity of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained fatigue.</p>
+    <p class="structural-explain">Authority Differentiation determines clarity and speed of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained pressure.</p>
+    ${linkSentence ? `<p class="structural-link">${linkSentence}</p>` : ''}
   `;
+
   output.querySelectorAll('.structural-thermo-track').forEach((track) => {
     const value = Number(track.dataset.value) || 0;
     const fill = track.querySelector('.structural-thermo-fill');
@@ -518,61 +479,107 @@ const renderStructuralProfileOutput = (profile) => {
 
 const renderStructuralDiagnostic = () => {
   if (!elements.structuralFlow) return;
-  const options = [
-    { code: 'A', text: 'By a clearly designated leader with final authority, even if others disagree.' },
-    { code: 'B', text: 'Through rapid consultation among specialists, with the most relevant expert leading each decision.' },
-    { code: 'C', text: 'Through collective discussion, aiming for consensus before acting.' },
-    { code: 'D', text: 'Informally, based on whoever feels most confident at the time.' },
-    { code: 'E', text: 'Primarily by those who have worked together the longest and know each other best.' },
-    { code: 'F', text: 'Decisions would initially be shared, but over time a natural hierarchy would emerge as some members prove more reliable.' },
-  ];
+  const existing = ensureStructuralProfile();
+  const selections = {
+    authority: existing?.authority?.code || null,
+    skill: existing?.skill?.code || null,
+    temporal: existing?.temporal?.code || null,
+  };
+
+  const buildQuestionBlock = (dimensionKey) => {
+    const dimension = structuralDiagnosticModel[dimensionKey];
+    if (!dimension) return '';
+    const groupName = `structural-${dimensionKey}`;
+    return `
+      <div class="structural-question-block">
+        <h4>${dimension.title}</h4>
+        <p class="structural-scenario">${dimension.scenario}</p>
+        <div class="structural-question" role="radiogroup" aria-label="${dimension.title}">
+          ${dimension.options.map((opt) => `
+            <label class="structural-option">
+              <input type="radio" name="${groupName}" value="${opt.code}" ${selections[dimensionKey] === opt.code ? 'checked' : ''} />
+              <span>${opt.code}. ${opt.text}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  };
 
   elements.structuralFlow.innerHTML = `
     <div class="structural-shell">
       <div class="structural-intro">
-        <p class="structural-eyebrow">Structural Configuration Under Isolation</p>
-        <h3>Expedition Structural Profile</h3>
-        <p>If your expedition team became fully isolated for six months with no external support, how would critical decisions most likely be made under sustained pressure and fatigue?</p>
+        <p class="structural-eyebrow">Structural Configuration Under Sustained Pressure</p>
+        <h3>Structural Configuration Under Sustained Pressure</h3>
+        <p>Teams are not only defined by personality. They are defined by structure.</p>
+        <p>Research in extreme and high risk environments shows that team effectiveness under sustained pressure can be understood across three structural dimensions:</p>
+        <div class="structural-dimension-list">
+          <span>Authority Differentiation</span>
+          <span>Skill Differentiation</span>
+          <span>Temporal Stability</span>
+        </div>
+        <p>This diagnostic examines how your team most naturally organises itself when fatigue rises and cognitive load increases.</p>
       </div>
-      <div class="structural-question" role="radiogroup" aria-label="Expedition Structural Profile">
-        ${options.map((opt) => `
-          <label class="structural-option">
-            <input type="radio" name="structural-option" value="${opt.code}" />
-            <span>${opt.code}. ${opt.text}</span>
-          </label>
-        `).join('')}
+      <div class="structural-questions">
+        ${buildQuestionBlock('authority')}
+        ${buildQuestionBlock('skill')}
+        ${buildQuestionBlock('temporal')}
       </div>
+      <div id="structuralOutput"></div>
       <div class="structural-actions">
         <button class="btn primary" id="structuralFinishBtn" disabled>Finish</button>
       </div>
     </div>
   `;
 
-  const existing = ensureStructuralProfile();
-  if (existing && existing.code && structuralProfiles[existing.code]) {
-    const input = elements.structuralFlow.querySelector(`input[value="${existing.code}"]`);
-    if (input) input.checked = true;
-    state.structural = structuralProfiles[existing.code];
-    const finishBtn = document.getElementById('structuralFinishBtn');
-    if (finishBtn) finishBtn.disabled = false;
-  }
+  const updateStructuralState = () => {
+    const nextSelections = {
+      authority: elements.structuralFlow.querySelector('input[name="structural-authority"]:checked')?.value || null,
+      skill: elements.structuralFlow.querySelector('input[name="structural-skill"]:checked')?.value || null,
+      temporal: elements.structuralFlow.querySelector('input[name="structural-temporal"]:checked')?.value || null,
+    };
 
-  elements.structuralFlow.querySelectorAll('input[name="structural-option"]').forEach((input) => {
-    input.addEventListener('change', (event) => {
-      const code = event.target.value;
-      const profile = structuralProfiles[code];
-      if (!profile) return;
-      state.structural = profile;
-      saveStructuralProfile({
-        code: profile.code,
-        name: profile.name,
-        authority: profile.authority.label,
-        skill: profile.skill.label,
-        temporal: profile.temporal.label,
-      });
-      const finishBtn = document.getElementById('structuralFinishBtn');
-      if (finishBtn) finishBtn.disabled = false;
-    });
+    const authorityOption = nextSelections.authority ? getStructuralOption('authority', nextSelections.authority) : null;
+    const skillOption = nextSelections.skill ? getStructuralOption('skill', nextSelections.skill) : null;
+    const temporalOption = nextSelections.temporal ? getStructuralOption('temporal', nextSelections.temporal) : null;
+
+    const payload = {
+      authority: authorityOption ? {
+        code: authorityOption.code,
+        label: authorityOption.label,
+        score: authorityOption.score,
+        interpretation: authorityOption.interpretation,
+      } : null,
+      skill: skillOption ? {
+        code: skillOption.code,
+        label: skillOption.label,
+        score: skillOption.score,
+        interpretation: skillOption.interpretation,
+      } : null,
+      temporal: temporalOption ? {
+        code: temporalOption.code,
+        label: temporalOption.label,
+        score: temporalOption.score,
+        interpretation: temporalOption.interpretation,
+      } : null,
+    };
+
+    renderStructuralOutput(payload);
+
+    if (payload.authority || payload.skill || payload.temporal) {
+      saveStructuralProfile(payload);
+      state.structural = payload;
+    }
+
+    const finishBtn = document.getElementById('structuralFinishBtn');
+    if (finishBtn) {
+      finishBtn.disabled = !(payload.authority && payload.skill && payload.temporal);
+    }
+  };
+
+  updateStructuralState();
+  elements.structuralFlow.querySelectorAll('input[type="radio"]').forEach((input) => {
+    input.addEventListener('change', updateStructuralState);
   });
 
   const finishBtn = document.getElementById('structuralFinishBtn');
@@ -911,12 +918,13 @@ const renderResults = () => {
   const riskPressure = explainRiskPressure(riskScore);
   const leadershipCopy = performanceLeadershipCopy[primary.archetype] || 'Your leadership profile blends best self behaviours, direct communication strengths, and a clear standard for the team.';
   const structural = ensureStructuralProfile();
-  const structuralProfile = structural && structuralProfiles[structural.code]
-    ? structuralProfiles[structural.code]
-    : null;
-  const structuralLink = structural
-    ? buildStructuralLinkSentence(primary.archetype, structural.name)
+  const structuralReady = structural && structural.authority && structural.skill && structural.temporal;
+  const structuralLink = structuralReady
+    ? buildStructuralLinkSentence(primary.archetype, structural.authority.label)
     : '';
+  const structuralAuthorityPercent = structuralReady ? structuralScoreToPercent(structural.authority.score) : 0;
+  const structuralSkillPercent = structuralReady ? structuralScoreToPercent(structural.skill.score) : 0;
+  const structuralTemporalPercent = structuralReady ? structuralScoreToPercent(structural.temporal.score) : 0;
 
   elements.resultsContent.innerHTML = `
     <div style="margin-bottom: 32px;">
@@ -1030,87 +1038,60 @@ const renderResults = () => {
       <h3>In Performance Leadership</h3>
       <p>${leadershipCopy}</p>
     </div>
-    ${structuralProfile ? `
+    ${structuralReady ? `
     <div class="card" style="margin-top:24px;">
-      <h3>Structural Configuration Dimensions</h3>
+      <h3>Structural Configuration Under Sustained Pressure</h3>
       <div class="structural-thermo-grid structural-thermo-results">
         <div class="structural-thermo">
           <div class="structural-thermo-title">Authority Differentiation</div>
           <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralProfile.authority.value}">
+            <div class="structural-thermo-track" data-value="${structuralAuthorityPercent}">
               <div class="structural-thermo-fill"></div>
             </div>
             <div class="structural-thermo-scale">
-              <span>Concentrated Authority</span>
-              <span>Distributed Authority</span>
+              <span>${structuralDiagnosticModel.authority.scale.maxLabel}</span>
+              <span>${structuralDiagnosticModel.authority.scale.minLabel}</span>
             </div>
           </div>
-          <div class="structural-anchor">Current anchor: ${structuralProfile.authority.label}</div>
+          <div class="structural-state">${structural.authority.label}</div>
+          <p class="structural-interpretation">${structural.authority.interpretation}</p>
         </div>
         <div class="structural-thermo">
           <div class="structural-thermo-title">Skill Differentiation</div>
           <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralProfile.skill.value}">
+            <div class="structural-thermo-track" data-value="${structuralSkillPercent}">
               <div class="structural-thermo-fill"></div>
             </div>
             <div class="structural-thermo-scale">
-              <span>High Skill Differentiation</span>
-              <span>Low Skill Differentiation</span>
+              <span>${structuralDiagnosticModel.skill.scale.maxLabel}</span>
+              <span>${structuralDiagnosticModel.skill.scale.minLabel}</span>
             </div>
           </div>
-          <div class="structural-anchor">Current anchor: ${structuralProfile.skill.label}</div>
+          <div class="structural-state">${structural.skill.label}</div>
+          <p class="structural-interpretation">${structural.skill.interpretation}</p>
         </div>
         <div class="structural-thermo">
           <div class="structural-thermo-title">Temporal Stability</div>
           <div class="structural-thermo-meter">
-            <div class="structural-thermo-track" data-value="${structuralProfile.temporal.value}">
+            <div class="structural-thermo-track" data-value="${structuralTemporalPercent}">
               <div class="structural-thermo-fill"></div>
             </div>
             <div class="structural-thermo-scale">
-              <span>High Stability</span>
-              <span>Low Stability</span>
+              <span>${structuralDiagnosticModel.temporal.scale.maxLabel}</span>
+              <span>${structuralDiagnosticModel.temporal.scale.minLabel}</span>
             </div>
           </div>
-          <div class="structural-anchor">Current anchor: ${structuralProfile.temporal.label}</div>
+          <div class="structural-state">${structural.temporal.label}</div>
+          <p class="structural-interpretation">${structural.temporal.interpretation}</p>
         </div>
       </div>
-      <p class="structural-explain">Authority Differentiation determines speed and clarity of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained fatigue.</p>
-    </div>
-    <div class="card" style="margin-top:24px;">
-      <h3>Structural Configuration Under Isolation</h3>
-      <div class="structural-card">
-        <h4>${structural.name}</h4>
-        <p class="structural-subtitle">${structuralProfile.subtitle}</p>
-        <div class="structural-block">
-          <h5>Structural Configuration</h5>
-          <ul class="structural-summary-list">
-            ${structuralProfile.configSummary.map((line) => `<li>${line}</li>`).join('')}
-          </ul>
-          <p>${structuralProfile.configDetail}</p>
-        </div>
-        <div class="structural-block">
-          <h5>Strength Under Isolation</h5>
-          <p>${structuralProfile.strength}</p>
-        </div>
-        <div class="structural-block">
-          <h5>Month Four Vulnerability</h5>
-          <p>${structuralProfile.vulnerability}</p>
-        </div>
-        <div class="structural-block">
-          <h5>Expanded Countermeasures</h5>
-          <ul class="structural-counter-list">
-            ${structuralProfile.countermeasures.map((item) => `<li>${item}</li>`).join('')}
-          </ul>
-        </div>
-        <div class="structural-block">
-          <h5>Two Word Commands</h5>
-          <div class="structural-commands">
-            ${structuralProfile.commands.map((cmd) => `<span>${cmd}</span>`).join('')}
-          </div>
-        </div>
-        <p class="structural-link">${structuralLink}</p>
-        <p class="structural-integration">Isolation amplifies structure. Fatigue reveals hierarchy. Stress hardens culture. Leadership is not personality. Leadership is regulation.</p>
+      <p class="structural-explain">Authority Differentiation determines clarity and speed of decision rights. Skill Differentiation determines adaptability versus redundancy. Temporal Stability determines psychological predictability under sustained pressure.</p>
+      <div class="structural-summary">
+        <div><strong>Authority Differentiation:</strong> ${structural.authority.label} (${structural.authority.score}/5)</div>
+        <div><strong>Skill Differentiation:</strong> ${structural.skill.label} (${structural.skill.score}/5)</div>
+        <div><strong>Temporal Stability:</strong> ${structural.temporal.label} (${structural.temporal.score}/5)</div>
       </div>
+      ${structuralLink ? `<p class="structural-link">${structuralLink}</p>` : ''}
     </div>
     ` : ''}
     <div class="actions">
