@@ -1,0 +1,94 @@
+{
+  "items": [
+    {
+      "archetype": "Innovator",
+      "exploreExploit": 9,
+      "pacePrecision": 7,
+      "riskTolerance": 8,
+      "goalPreference": "Goals are invitations to explore. The target matters, but the route should stay playful and experimental so better solutions can emerge.",
+      "goalComms": "Open with possibility, then co-create a direction: 'What could this become?' 'What would a bold first version look like?' Agree a simple test and a decision point.",
+      "feedbackStyle": "Use curiosity-led feedback. Start with what is working, then ask for their view first. Offer constraints as design challenges, not restrictions.",
+      "watchouts": "Can chase novelty and skip consolidation. Protect against too many parallel ideas by time-boxing exploration and insisting on one clear next commitment."
+    },
+    {
+      "archetype": "Explorer",
+      "exploreExploit": 8,
+      "pacePrecision": 8,
+      "riskTolerance": 7,
+      "goalPreference": "Goals should move and breathe. Plans are hypotheses, not contracts. Learning in motion is the point, so flexibility is part of the goal.",
+      "goalComms": "Set a direction and give permission to adapt: 'Here is the outcome, adjust the method as you learn.' Use short checkpoints and ask, 'What are you noticing now?'",
+      "feedbackStyle": "Feedback works best as rapid loops. Keep it short, specific, and immediate. Praise smart adaptation, then refine one thing to try next.",
+      "watchouts": "Can drift or keep options open too long. Protect against endless adjustment by agreeing what must stay stable and what is allowed to flex."
+    },
+    {
+      "archetype": "Energiser",
+      "exploreExploit": 7,
+      "pacePrecision": 9,
+      "riskTolerance": 6,
+      "goalPreference": "Goals should feel alive and urgent. Motivation rises when the aim is meaningful, the standard is high, and progress is visible.",
+      "goalComms": "Use energising language and momentum markers: 'Here is the standard.' 'Here is the next push.' Show progress quickly and celebrate small wins.",
+      "feedbackStyle": "Deliver feedback with pace and belief. Keep it direct and optimistic. Use a challenge tone, then confirm recovery and sustainability.",
+      "watchouts": "Can overpush and miss fatigue signals. Protect against burnout by building recovery into the plan and checking capacity before raising pace."
+    },
+    {
+      "archetype": "Connector",
+      "exploreExploit": 6,
+      "pacePrecision": 6,
+      "riskTolerance": 4,
+      "goalPreference": "Goals work when they strengthen belonging and shared purpose. Commitment increases when people feel seen, heard, and aligned.",
+      "goalComms": "Link goals to the group: 'This is why it matters to us.' Invite dialogue, then close with clarity: 'Here is what we are committing to together.'",
+      "feedbackStyle": "Use warm clarity. Start with acknowledgement, then be specific about the behaviour. Ask how they want feedback delivered, then keep it consistent.",
+      "watchouts": "Can avoid hard calls or over-consult. Protect against fuzzy accountability by naming roles, decisions, and boundaries kindly but firmly."
+    },
+    {
+      "archetype": "Synchroniser",
+      "exploreExploit": 5,
+      "pacePrecision": 7,
+      "riskTolerance": 5,
+      "goalPreference": "Goals should be coordinated so timing, roles, and handovers are smooth. Progress is built through rhythm and alignment across people.",
+      "goalComms": "Make the goal operational: 'Who owns what?' 'What is the handover?' 'When do we check in?' Use brief, regular updates and visible shared tracking.",
+      "feedbackStyle": "Feedback is best delivered through systems. Point to the agreed standard, then the specific interface to improve. Keep it practical and role-based.",
+      "watchouts": "Can become a bottleneck or over-coordinate. Protect against meeting creep by using minimum viable alignment and clear decision ownership."
+    },
+    {
+      "archetype": "Navigator",
+      "exploreExploit": 4,
+      "pacePrecision": 6,
+      "riskTolerance": 3,
+      "goalPreference": "Goals should be structured with priorities, milestones, and a clear definition of success. Clarity reduces stress and increases execution quality.",
+      "goalComms": "State the outcome, sequence the steps, and define 'done'. Use written summaries, clear decision points, and explicit trade-offs.",
+      "feedbackStyle": "Feedback should be specific, behavioural, and tied to the plan. Offer one or two precise adjustments and confirm what stays the same.",
+      "watchouts": "Can become rigid if conditions change. Protect against over-control by building in review points and asking, 'What would make this plan obsolete?'"
+    },
+    {
+      "archetype": "Anchor",
+      "exploreExploit": 3,
+      "pacePrecision": 4,
+      "riskTolerance": 2,
+      "goalPreference": "Goals should be sustainable and steady. Progress comes from consistency, emotional regulation, and repeatable routines under pressure.",
+      "goalComms": "Use calm, grounded language: 'Here is the next stable step.' Keep changes small and explain the why. Confirm safety and psychological steadiness.",
+      "feedbackStyle": "Feedback lands best when it is private, calm, and respectful. Focus on one improvement, then reinforce what they are already doing well.",
+      "watchouts": "Can delay escalation or avoid conflict. Protect against issues leaking sideways by naming tensions early and pairing calm with clear next steps."
+    },
+    {
+      "archetype": "Decision-Maker",
+      "exploreExploit": 2,
+      "pacePrecision": 8,
+      "riskTolerance": 7,
+      "goalPreference": "Goals should be crisp, measurable, and action-led. They want decisions, commitments, and accountability that drives progress.",
+      "goalComms": "Be direct: 'This is the target.' 'This is the deadline.' 'You own this.' Use clear decision rules and define what success looks like.",
+      "feedbackStyle": "Feedback should be blunt but fair. Lead with the key point, then give one actionable instruction. Confirm autonomy and authority to act.",
+      "watchouts": "Can become overly directive or reduce psychological safety. Protect against bluntness by asking one good question before closing: 'What am I missing?'"
+    },
+    {
+      "archetype": "Guardian",
+      "exploreExploit": 1,
+      "pacePrecision": 2,
+      "riskTolerance": 1,
+      "goalPreference": "Goals should be precise, risk-aware, and standards-led. They prefer controlled execution, quality thresholds, and clear measurement.",
+      "goalComms": "Use evidence and safeguards: 'What is the exact objective?' 'How will we measure change?' Define standards, controls, and escalation routes.",
+      "feedbackStyle": "Feedback should reference the standard and the evidence. Be specific about what is acceptable, what is not, and what to do next.",
+      "watchouts": "Can become overly risk-averse and slow progress. Protect against stagnation by separating non-negotiables from preferences and offering a safe pathway forward."
+    }
+  ]
+}

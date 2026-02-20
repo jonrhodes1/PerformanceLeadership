@@ -1,0 +1,60 @@
+{
+  "ordered": [
+    "Anchor",
+    "Connector",
+    "Navigator",
+    "Guardian",
+    "Explorer",
+    "Energiser",
+    "Synchroniser",
+    "Decision-Maker",
+    "Innovator"
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Anchor",
+      "preference": "I bring calm structure and keep standards steady."
+    },
+    {
+      "id": 2,
+      "name": "Connector",
+      "preference": "I connect people and build trust across the group."
+    },
+    {
+      "id": 3,
+      "name": "Navigator",
+      "preference": "I set direction and map the route to the goal."
+    },
+    {
+      "id": 4,
+      "name": "Guardian",
+      "preference": "I protect quality and reduce avoidable risk."
+    },
+    {
+      "id": 5,
+      "name": "Explorer",
+      "preference": "I seek new options and open fresh paths."
+    },
+    {
+      "id": 6,
+      "name": "Energiser",
+      "preference": "I lift energy and drive immediate momentum."
+    },
+    {
+      "id": 7,
+      "name": "Synchroniser",
+      "preference": "I align timing and keep the group in rhythm."
+    },
+    {
+      "id": 8,
+      "name": "Decision-Maker",
+      "preference": "I commit quickly and clarify who does what."
+    },
+    {
+      "id": 9,
+      "name": "Innovator",
+      "preference": "I challenge the status quo to raise performance."
+    }
+  ]
+}

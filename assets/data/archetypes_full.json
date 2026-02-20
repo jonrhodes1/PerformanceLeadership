@@ -1,0 +1,112 @@
+{
+  "items": [
+    {
+      "archetype": "Anchor",
+      "id": 1,
+      "descriptor": "Grounded stabiliser who maintains composure and standards under pressure.",
+      "bestSelf": "Sets a calm base and creates predictable routines that keep the team steady. You make decisions without drama and ensure quality stays high when energy drops.",
+      "drift": "Becomes rigid and resists pace changes when pressure rises. Can over-protect stability and miss opportunities that require calculated risk.",
+      "triggers": "Rapid change without rationale and noisy decision making that feels chaotic.",
+      "communication": "You value clear structure and measured tone. You prefer step by step briefings, written confirmation of decisions, and calm, unhurried conversations. Whiteboard planning where you can see the flow helps you think.",
+      "growthEdge": "Invite calculated risk and allow pace to rise when the moment demands it. Notice when caution becomes cost.",
+      "synergyPartner": "Explorer",
+      "synergyMeaning": "Explorer adds range and creativity, Anchor brings discipline and finish."
+    },
+    {
+      "archetype": "Connector",
+      "id": 2,
+      "descriptor": "Relational catalyst who aligns people and builds trust across groups.",
+      "bestSelf": "Creates shared purpose and makes people feel included and heard. You encourage collaboration naturally and reduce friction by addressing what people care about beneath the surface. Teams move faster when trust is high.",
+      "drift": "Over-invests in harmony and delays hard choices when clarity is needed. Can become so focused on keeping everyone aligned that you avoid necessary conflict.",
+      "triggers": "Isolation, low empathy from leadership, and fragmented communication that splits the group.",
+      "communication": "You value warm, inclusive framing that brings people together. You prefer conversations that acknowledge people first, then tackle problems. Small group check-ins matter more than mass briefings. You respond well to personal context and relationship building.",
+      "growthEdge": "Hold the line on clarity even when it creates tension. Some people need you to say the hard thing.",
+      "synergyPartner": "Decision-Maker",
+      "synergyMeaning": "Decision-Maker drives clarity while Connector keeps alignment and trust strong."
+    },
+    {
+      "archetype": "Navigator",
+      "id": 3,
+      "descriptor": "Directional leader who sets the route and adjusts pace with confidence.",
+      "bestSelf": "Builds a clear plan and calls the next move, reducing uncertainty for everyone. You map the terrain, spot the route, and have the conviction to commit. People feel safe when you're orienting them.",
+      "drift": "Over-controls details and narrows options when pressure rises. Can dismiss input from others and steer too hard when the plan feels threatened.",
+      "triggers": "Ambiguity, shifting priorities mid-journey, and unclear ownership of decisions.",
+      "communication": "You value options and directional cues. You like visual route-maps, clear decision points, and concise calls to action. Too many words slow you down. You want to see the terrain and understand what success looks like.",
+      "growthEdge": "Invite input from others before you commit on the route. Slow the decision slightly to bring people with you.",
+      "synergyPartner": "Connector",
+      "synergyMeaning": "Connector strengthens buy-in while Navigator maintains clear direction."
+    },
+    {
+      "archetype": "Guardian",
+      "id": 4,
+      "descriptor": "Risk-aware protector of quality and process who spots threats early.",
+      "bestSelf": "Catches problems before they become crises and keeps compliance tight. You notice the detail others miss and prevent avoidable errors. Your rigour protects the team and builds confidence in quality.",
+      "drift": "Slows execution and hesitates when speed is required. Can become so focused on eliminating every risk that you stall momentum and frustrate people ready to move.",
+      "triggers": "Loose standards, missing data, and hazards that could have been prevented with due diligence.",
+      "communication": "You value evidence and sequence. You want data, step-by-step clarity, and time to check the details before you commit. You appreciate checklists, verified information, and conversations where precision matters.",
+      "growthEdge": "Balance caution with pace and learn to trust the group under pressure. Not every decision needs complete certainty.",
+      "synergyPartner": "Energiser",
+      "synergyMeaning": "Energiser lifts tempo while Guardian protects quality and reduces risk."
+    },
+    {
+      "archetype": "Explorer",
+      "id": 5,
+      "descriptor": "Curious challenger who expands options and opens new thinking.",
+      "bestSelf": "Finds routes others don't see and questions assumptions that limit progress. You spark ambition and bring fresh angles that lift the standard. People feel energised when you're in the room asking 'what if'.",
+      "drift": "Scatters focus and chases novelty when pressure rises. Can leave half finished ideas and frustrate people who need execution and closure.",
+      "triggers": "Rigid rules and closed thinking that block exploration and learning.",
+      "communication": "You value open, future-focused thinking and possibility-led framing. You like conversations where ideas can roam, questions are encouraged, and nothing is off the table yet. You think out loud and want others to join the exploration.",
+      "growthEdge": "Convert ideas into a simple, executable plan. Get one thing across the line before chasing the next idea.",
+      "synergyPartner": "Anchor",
+      "synergyMeaning": "Anchor grounds delivery while Explorer opens new routes and possibilities."
+    },
+    {
+      "archetype": "Energiser",
+      "id": 6,
+      "descriptor": "Momentum driver who lifts effort and creates urgency.",
+      "bestSelf": "Creates intensity and keeps people moving forward. You rally energy and raise intent when motivation dips. Your presence makes people feel like the effort matters and things are moving.",
+      "drift": "Pushes too hard and loses precision under fatigue. Can burn people out by always turning up the heat and missing when the group needs rest.",
+      "triggers": "Low energy, drifting focus, and passive delivery that feels like stagnation.",
+      "communication": "You value short, punchy, encouraging communication. You like quick bursts of direction, real-time feedback, and celebration of small wins. Too much detail slows your roll. You respond well to momentum and challenge.",
+      "growthEdge": "Pair energy with calm sequencing in high-stakes moments. Intensity without precision can backfire.",
+      "synergyPartner": "Guardian",
+      "synergyMeaning": "Guardian keeps quality and safety while Energiser keeps pace and momentum."
+    },
+    {
+      "archetype": "Synchroniser",
+      "id": 7,
+      "descriptor": "Tempo setter who aligns timing and keeps the group in rhythm.",
+      "bestSelf": "Coordinates movement and keeps people moving together. You sense when to speed up and when to pause, and you call the tempo so everyone stays locked. Your timing lets the group flow as one.",
+      "drift": "Over-focuses on timing and loses strategic range. Can prioritise rhythm over bold moves and keep the group in sync but moving too slowly.",
+      "triggers": "Disjointed pacing, people pulling in different directions, and rushed transitions without coordination.",
+      "communication": "You value tempo cues and coordination points. You prefer regular timing check-ins, clear sync moments, and conversations about pace and rhythm. You notice when people are out of step and want to bring them back into flow.",
+      "growthEdge": "Stretch the pace when opportunity opens. Not every moment calls for steady rhythm.",
+      "synergyPartner": "Innovator",
+      "synergyMeaning": "Innovator brings fresh angles while Synchroniser locks timing."
+    },
+    {
+      "archetype": "Decision-Maker",
+      "id": 8,
+      "descriptor": "Fast committing leader who drives accountability and clarity.",
+      "bestSelf": "Clarifies ownership and closes debate with conviction. You commit quickly and make it crystal who does what. Your speed reduces uncertainty and gives people permission to move.",
+      "drift": "Becomes blunt and impatient under load. Can dismiss others' input and make calls too fast without the context that could matter.",
+      "triggers": "Slow consensus, unclear authority, and drift when decisions need to be made.",
+      "communication": "You value direct asks and time-boxed choices. You like quick decisions with clear next steps and accountability. You want to know the ask, the deadline, and what you're accountable for. Too much discussion feels like delay.",
+      "growthEdge": "Check impact before speed. Pause to ask what others know before you commit.",
+      "synergyPartner": "Connector",
+      "synergyMeaning": "Connector keeps cohesion while Decision-Maker drives clarity and pace."
+    },
+    {
+      "archetype": "Innovator",
+      "id": 9,
+      "descriptor": "Performance creator who challenges routines and lifts standards.",
+      "bestSelf": "Introduces bold ideas and improves how things get done. You question what's working and improve methods to raise performance. Your fresh thinking challenges people to be better and keeps standards sharp.",
+      "drift": "Disrupts stability and skips essentials when pressure rises. Can introduce change for its own sake and frustrate people who need foundation before innovation.",
+      "triggers": "Stagnation and low ambition that feels like acceptance of mediocrity.",
+      "communication": "You value bold, creative, outcome-driven framing. You like conversations about raising the standard, trying new approaches, and what excellence looks like. You want to talk about what's possible, not just what's proven.",
+      "growthEdge": "Secure quick wins before introducing big shifts. Build credibility before you challenge the foundations.",
+      "synergyPartner": "Synchroniser",
+      "synergyMeaning": "Synchroniser provides rhythm while Innovator brings change and raises the bar."
+    }
+  ]
+}
